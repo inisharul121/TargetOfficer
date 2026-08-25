@@ -1,0 +1,156 @@
+================================================================================
+          PROJECT PROPOSAL & COMPREHENSIVE REQUIREMENTS DOCUMENT
+================================================================================
+Official Platform Brand: TargetOfficer
+Tagline: Precision Preparation for Public Service | Aim High. Aim Officer.
+Target Audience: Government Job Candidates (BCS, BPSC, Bank Jobs, IT Cadres)
+Document Type: Full System Requirements Specification & Operational Blueprint
+
+================================================================================
+1. EXECUTIVE SUMMARY
+================================================================================
+TargetOfficer is a high-performance, scale-ready online examination platform 
+specifically architected for Bangladesh government job preparation. 
+
+Unlike generic quiz platforms, TargetOfficer addresses the core realities of 
+competitive public sector exams:
+1. Question-Setter Pattern Analysis (BUET, IBA, Arts Faculty, MIST, BPSC).
+2. Recurring Question History across different organizations and years.
+3. Offline-resilient exam taking with zero-latency synchronized execution.
+4. Granular performance analytics tracking weak topics, speed, and percentiles.
+
+The platform launches with a high-concurrency Pure MCQ Engine designed for strict 
+anti-cheat live model tests, customized topic-wise practice, and unified 
+content management.
+
+================================================================================
+2. COMPREHENSIVE FEATURE ARCHITECTURE & SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+MODULE 1: CORE EXAM & QUESTION BANK ARCHITECTURE
+--------------------------------------------------------------------------------
+- Multi-Type MCQ Engine: Supports Single-Correct, Multi-Correct, and "None of the Above" formats.
+- Complete Hierarchy Taxonomy: 
+  Organization -> Exam Type -> Year -> Subject -> Topic -> Sub-topic.
+- Rich Question Metadata:
+  * Difficulty Rating (Easy, Medium, Hard - auto-calibrated based on user accuracy).
+  * Positive Marks & Configurable Negative Marking penalties (e.g., 0.25, 0.50).
+  * Rich-Text Explanation, Source Citation, and Reference Book tags.
+- Unified Repositories & Duplicate Resolver:
+  Algorithmic detection of identical question stems. Merges metadata tags (Org/Year/Taker) 
+  onto a single question record rather than creating duplicate database rows.
+- Question Setter Pattern Tagging:
+  Tag questions by examining body (BUET, IBA, Arts Faculty, MIST, Internal Committee) 
+  allowing students to filter and master institution-specific question styles.
+- Question Lifecycle & Workflow: Draft -> Under Review -> Approved -> Published -> Archived.
+- Question Versioning: Audit log and edit history for updates made after publishing.
+- Advanced Content Support: Inline LaTeX/KaTeX math equations, code blocks, tables, 
+  and image-based stems/options.
+
+--------------------------------------------------------------------------------
+MODULE 2: EXAM MODES & TEST EXECUTION ENGINE
+--------------------------------------------------------------------------------
+- Practice Mode (Untimed): Instant answer feedback, complete explanations, unlimited retakes.
+- Timed Mock Exam: Real exam simulation, server-authoritative countdown, auto-submit on expiry.
+- Topic-Wise Practice: Targeted practice filtered by specific subjects and sub-topics.
+- Custom Exam Generator: Student-defined filters (Org, Taker, Year, Subject, Difficulty, Question Count).
+- Previous Years' Archive: Browsable original exam papers categorized by year and organization.
+- Daily/Weekly Micro-Quizzes: Short recurring quizzes designed to build daily practice habits.
+- Scheduled Live Model Tests: Synchronized real-time exams held at specific dates/times.
+- Section-Wise Timing: Configurable per-section time limits matching official exam rules.
+- Anti-Cheating Controls:
+  * Shuffled question order and option randomization per candidate attempt.
+  * Server-authoritative timing preventing local system-clock manipulation.
+  * Focus-loss tracking (tab-switch blur warnings) and disabled copy-paste on exam screen.
+  * Auto-save answer queue surviving browser reloads and connection drops.
+- Pause/Resume Controls: Permitted in Practice Mode; strictly disabled during Live Exams.
+
+--------------------------------------------------------------------------------
+MODULE 3: CANDIDATE PORTAL & USER EXPERIENCE
+--------------------------------------------------------------------------------
+- Multi-Channel Auth: Email/Password, Phone OTP, and Google/Facebook OAuth.
+- Personalized Onboarding: Target exam selection (e.g., 46th BCS, Senior Officer IT) 
+  tailoring dashboard recommendations.
+- Dual View Exam Interface:
+  * Single Card View: Optimized for mobile responsiveness and focused navigation.
+  * Full Paper View: Optimized for desktop, mimicking real question sheets.
+- Live Status Palette: Color-coded tracking (Answered, Unanswered, Marked for Review, Unvisited).
+- Result & Performance Center:
+  * Instant score breakdown, accuracy percentages, percentile ranking, and time-per-question analytics.
+  * Downloadable result certificates in PDF format.
+- Interactive Tools: Bookmark/Flag questions for revision; "Report an Error" option on every question.
+- Multi-Language Support: Seamless Bangla and English interface toggle.
+
+--------------------------------------------------------------------------------
+MODULE 4: GAMIFICATION & MOTIVATION ENGINE
+--------------------------------------------------------------------------------
+- Multi-Tier Leaderboards: Global, Per-Exam, Per-Organization, and Friends-Only rankings.
+- Real-Time Percentile Calculations: Instant comparative ranking against all test takers.
+- Streak & Habit Tracker: Daily practice streaks with a visual Study Streak Calendar.
+- Achievement Badges: Milestone awards (e.g., "100 Questions Solved", "Weekly Topper").
+
+--------------------------------------------------------------------------------
+MODULE 5: ADMIN & CONTENT MANAGEMENT SYSTEM (CMS)
+--------------------------------------------------------------------------------
+- Role-Based Access Control (RBAC): Super Admin, Moderator, Question Setter, Reviewer.
+- Bulk Ingestion Engine: CSV/Excel import with automated schema validation and media attachment mapping.
+- Rich-Text WYSIWYG Editor: Live side-by-side Markdown/LaTeX editor with math rendering preview.
+- Exam Builder UI: Assemble static or dynamic question sets, configure timers, negative marks, and pass thresholds.
+- Audit & Moderation Queue: Content revision histories and student error report queue for quick correction.
+- Setter Dashboard: Tracks setter contributions, approval rates, and question performance stats.
+
+--------------------------------------------------------------------------------
+MODULE 6: ANALYTICS, REPORTING & INSIGHTS
+--------------------------------------------------------------------------------
+- Student-Level Analytics: Weakness identification, historical accuracy trends, speed analysis.
+- Exam Calibration Analytics: Distraction and item-difficulty metrics (identifying flawed questions).
+- Platform Analytics: Daily/Monthly Active Users (DAU/MAU), popular categories, and system usage stats.
+- Comparative Insights: "You scored higher than X% of candidates in Mathematics."
+
+--------------------------------------------------------------------------------
+MODULE 7: COMMUNITY & MONETIZATION ROADMAP (FUTURE PHASES)
+--------------------------------------------------------------------------------
+- Question Discussion Threads: Moderated candidate debate and solution clarification per question.
+- Live Leaderboard Updates: Real-time dynamic ranking during scheduled model tests.
+- Tiered Monetization Model:
+  * Free Tier: Basic question archive access and daily micro-quizzes.
+  * Premium Subscription: Unlimited mock tests, full analytics, and ad-free experience.
+  * Pay-Per-Series: One-time access purchase for specific exam series (e.g., Full BCS Package).
+- Referral & Coupon System: Invite rewards and promotional code discounts.
+
+================================================================================
+3. TECHNICAL ARCHITECTURE & STACK SPECIFICATIONS
+================================================================================
+- Frontend: Next.js (React) + TypeScript | Tailwind CSS + shadcn/ui
+- Formats & Rendering: KaTeX (Fast Math DOM rendering) + Prism.js (Syntax Highlighting)
+- Backend: Node.js (NestJS) OR Go (Fiber Engine for high-concurrency API performance)
+- Database Layer: PostgreSQL 16+ (Relational integrity & JSONB metadata)
+- Cache & State Layer: Redis 7+ (Real-time timers, queues, live leaderboards)
+- Storage & Delivery: Cloudflare CDN + AWS S3 / R2 Asset Storage
+- Reliability: Offline micro-caching via IndexedDB for instant auto-save recovery
+
+================================================================================
+4. IMPLEMENTATION ROADMAP
+================================================================================
+Phase 1: Core Foundation & Taxonomy (Weeks 1-4)
+ - PostgreSQL Multi-Tag Schema setup
+ - RBAC Admin Panel & Bulk CSV Ingestion Engine
+ - Authentication & Subject/Topic Hierarchy
+
+Phase 2: Exam Engine & Student UI (Weeks 5-8)
+ - Dynamic & Static Test Generators
+ - Dual View Exam Interface with KaTeX & LaTeX support
+ - Server-Authoritative Timer & Offline Sync Engine
+
+Phase 3: Analytics, Gamification & Launch (Weeks 9-12)
+ - Performance Profiler, Leaderboards & Streak Trackers
+ - Anti-Cheat Audit (Tab switch detection, Copy-paste restriction)
+ - Load Testing for 10,000+ Concurrent Test Takers
+
+================================================================================
+5. NEXT STEPS & IMMEDIATE ACTION ITEMS
+================================================================================
+1. Initialize code repositories and provision PostgreSQL + Redis development instances.
+2. Finalize standardized CSV/Excel question upload template.
+3. Review and sign off on technical specs for sprint kickoff.
