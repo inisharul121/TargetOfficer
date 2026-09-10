@@ -16,7 +16,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20|unique:users',
-            'target_exam' => 'required|string',
+            'target_exam' => 'nullable|string',
             'password' => 'required|string|min:6',
         ]);
 
@@ -24,7 +24,7 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
-            'target_exam' => $validated['target_exam'],
+            'target_exam' => $validated['target_exam'] ?? 'BCS Preliminary',
             'password' => Hash::make($validated['password']),
             'role' => 'student',
             'coins' => 100,

@@ -142,18 +142,53 @@ class ExamController extends Controller
     {
         $subjects = Subject::where('is_active', true)->with('topics')->get();
         $setters = Organization::where('is_question_setter', true)->get();
+        $exams = Exam::where('is_published', true)->where('exam_mode', '!=', 'custom')->latest()->get();
 
-        return view('exams.custom', compact('subjects', 'setters'));
+        $mistakeCount = 0;
+        $unattemptedCount = 0;
+        $bookmarkedCount = 0;
+        $totalPublishedQuestions = Question::where('status', 'published')->count();
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            $mistakeCount = \App\Models\AttemptAnswer::join('exam_attempts', 'attempt_answers.attempt_id', '=', 'exam_attempts.id')
+                ->where('exam_attempts.user_id', $user->id)
+                ->where('attempt_answers.is_correct', false)
+                ->distinct('attempt_answers.question_id')
+                ->count('attempt_answers.question_id');
+
+            $attemptedCount = \App\Models\AttemptAnswer::join('exam_attempts', 'attempt_answers.attempt_id', '=', 'exam_attempts.id')
+                ->where('exam_attempts.user_id', $user->id)
+                ->distinct('attempt_answers.question_id')
+                ->count('attempt_answers.question_id');
+
+            $unattemptedCount = max(0, $totalPublishedQuestions - $attemptedCount);
+            $bookmarkedCount = \App\Models\Bookmark::where('user_id', $user->id)->count();
+        }
+
+        return view('exams.custom', compact(
+            'subjects',
+            'setters',
+            'exams',
+            'mistakeCount',
+            'unattemptedCount',
+            'bookmarkedCount',
+            'totalPublishedQuestions'
+        ));
     }
 
     public function storeCustom(Request $request)
     {
         $validated = $request->validate([
+            'exam_id' => 'nullable|exists:exams,id',
+            'setter_organization_id' => 'nullable|exists:organizations,id',
             'subject_id' => 'nullable|exists:subjects,id',
             'topic_id' => 'nullable|exists:topics,id',
-            'setter_organization_id' => 'nullable|exists:organizations,id',
             'difficulty' => 'nullable|in:easy,medium,hard',
-            'question_count' => 'required|integer|min:5|max:50',
+            'question_count' => 'required|integer|min:5|max:100',
+            'pool_type' => 'nullable|in:all,unattempted,mistakes,bookmarked',
+            'duration_minutes' => 'nullable|integer|min:1|max:180',
+            'negative_marking' => 'nullable|numeric|in:0,0.25,0.50',
         ]);
 
         $customExam = $this->examService->generateCustomExam(Auth::user(), $validated);

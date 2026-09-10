@@ -16,52 +16,52 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         <!-- Scorecard Header Banner -->
-        <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-10 shadow-2xl border border-slate-800 relative overflow-hidden">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+        <div class="rounded-3xl bg-white text-slate-900 p-6 sm:p-10 shadow-xs border border-slate-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="space-y-2">
-                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
-                        পরীক্ষার অফিসিয়াল ফলাফল
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 uppercase">
+                        {{ __t('পরীক্ষার অফিসিয়াল ফলাফল', 'Official Exam Result Scorecard') }}
                     </span>
-                    <h1 class="text-2xl sm:text-3xl font-black text-white">{{ $attempt->exam->title_bn }}</h1>
-                    <p class="text-xs sm:text-sm text-slate-400">
-                        সম্পন্ন হয়েছে: {{ $attempt->completed_at ? $attempt->completed_at->format('d M, Y h:i A') : $attempt->updated_at->format('d M, Y') }}
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900">{{ __t($attempt->exam->title_bn, $attempt->exam->title_en ?? $attempt->exam->title_bn) }}</h1>
+                    <p class="text-xs sm:text-sm text-slate-500">
+                        {{ __t('সম্পন্ন হয়েছে:', 'Completed at:') }} {{ $attempt->completed_at ? $attempt->completed_at->format('d M, Y h:i A') : $attempt->updated_at->format('d M, Y') }}
                     </p>
                 </div>
 
                 <!-- Big Score Badge -->
-                <div class="flex items-center space-x-4 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/15">
+                <div class="flex items-center space-x-4 bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-200">
                     <div class="text-right">
-                        <div class="text-xs font-bold text-indigo-300 uppercase tracking-wider">প্রাপ্ত মোট স্কোর</div>
-                        <div class="text-3xl sm:text-4xl font-black text-amber-400">{{ number_format($attempt->total_score, 2) }}</div>
-                        <div class="text-[11px] text-slate-400">মোট মার্কস: {{ $attempt->exam->total_marks }}</div>
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __t('প্রাপ্ত মোট স্কোর', 'Total Score Achieved') }}</div>
+                        <div class="text-3xl sm:text-4xl font-black text-indigo-600">{{ number_format($attempt->total_score, 2) }}</div>
+                        <div class="text-[11px] text-slate-500">{{ __t('মোট মার্কস:', 'Total Marks:') }} {{ $attempt->exam->total_marks }}</div>
                     </div>
-                    <div class="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-2xl font-black shadow-md">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl font-black shadow-xs">
                         🎯
                     </div>
                 </div>
             </div>
 
             <!-- Key Metrics Grid -->
-            <div class="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/60">
-                    <span class="text-[11px] text-slate-400 font-bold block">সঠিক উত্তর</span>
-                    <span class="text-lg font-black text-emerald-400">{{ $attempt->total_correct }} টি</span>
+            <div class="mt-8 pt-6 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-[11px] text-slate-500 font-bold block">{{ __t('সঠিক উত্তর', 'Correct') }}</span>
+                    <span class="text-lg font-black text-emerald-600">{{ $attempt->total_correct }}</span>
                 </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/60">
-                    <span class="text-[11px] text-slate-400 font-bold block">ভুল উত্তর</span>
-                    <span class="text-lg font-black text-rose-400">{{ $attempt->total_incorrect }} টি</span>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-[11px] text-slate-500 font-bold block">{{ __t('ভুল উত্তর', 'Incorrect') }}</span>
+                    <span class="text-lg font-black text-rose-600">{{ $attempt->total_incorrect }}</span>
                 </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/60">
-                    <span class="text-[11px] text-slate-400 font-bold block">নেগেটিভ মার্কস</span>
-                    <span class="text-lg font-black text-rose-400">-{{ number_format($attempt->total_negative_marks, 2) }}</span>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-[11px] text-slate-500 font-bold block">{{ __t('নেগেティブ মার্কস', 'Negative Marks') }}</span>
+                    <span class="text-lg font-black text-rose-600">-{{ number_format($attempt->total_negative_marks, 2) }}</span>
                 </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/60">
-                    <span class="text-[11px] text-slate-400 font-bold block">নির্ভুলতা (Accuracy)</span>
-                    <span class="text-lg font-black text-indigo-300">{{ number_format($attempt->accuracy_percentage, 1) }}%</span>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-[11px] text-slate-500 font-bold block">{{ __t('নির্ভুলতা (Accuracy)', 'Accuracy') }}</span>
+                    <span class="text-lg font-black text-indigo-600">{{ number_format($attempt->accuracy_percentage, 1) }}%</span>
                 </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/60">
-                    <span class="text-[11px] text-slate-400 font-bold block">সময় ব্যয়</span>
-                    <span class="text-lg font-black text-amber-300">{{ floor($attempt->time_taken_seconds / 60) }}মি {{ $attempt->time_taken_seconds % 60 }}সে</span>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-[11px] text-slate-500 font-bold block">{{ __t('সময় ব্যয়', 'Time Spent') }}</span>
+                    <span class="text-lg font-black text-slate-700">{{ floor($attempt->time_taken_seconds / 60) }}মি {{ $attempt->time_taken_seconds % 60 }}সে</span>
                 </div>
             </div>
         </div>
@@ -90,14 +90,18 @@
         </div>
 
         <!-- Action Links -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-3 no-print">
             <h2 class="text-xl font-black text-slate-900">প্রশ্নোত্তর ও সমাধান পর্যালোচনা (Detailed Solutions)</h2>
             <div class="flex items-center space-x-2">
-                <a href="{{ route('exams.room', $attempt->exam->slug) }}" class="px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition">
-                    পুনরায় পরীক্ষা দিন (Retake)
+                <button type="button" onclick="window.print()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition flex items-center space-x-1.5 shadow-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    <span>🖨️ রেজাল্ট শিট প্রিন্ট / PDF</span>
+                </button>
+                <a href="{{ route('exams.room', $attempt->exam->slug) }}" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    পুনরায় পরীক্ষা দিন
                 </a>
                 <a href="{{ route('dashboard') }}" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
-                    ড্যাশবোর্ডে ফিরুন
+                    ড্যাশবোর্ড
                 </a>
             </div>
         </div>
@@ -113,7 +117,7 @@
                     $isUnanswered = is_null($ans->selected_option_id);
                 @endphp
 
-                <div class="bg-white rounded-3xl p-6 sm:p-8 border {{ $isCorrect ? 'border-emerald-200 shadow-xs' : ($isUnanswered ? 'border-slate-200' : 'border-rose-200 shadow-xs') }} space-y-5">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 border {{ $isCorrect ? 'border-slate-200 shadow-xs' : ($isUnanswered ? 'border-slate-200' : 'border-rose-200 shadow-xs') }} space-y-5">
                     
                     <!-- Question Header & Status -->
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -125,7 +129,7 @@
                                 {{ $q->subject->name_bn }}
                             </span>
                             @if($q->setterOrganization)
-                                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">
+                                <span class="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">
                                     {{ $q->setterOrganization->code }}
                                 </span>
                             @endif
@@ -134,16 +138,16 @@
                         <!-- Result Tag -->
                         <div>
                             @if($isCorrect)
-                                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">
-                                    ✓ সঠিক (+{{ $ans->marks_awarded }})
+                                <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-black">
+                                    ✓ {{ __t('সঠিক', 'Correct') }} (+{{ $ans->marks_awarded }})
                                 </span>
                             @elseif($isUnanswered)
                                 <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
-                                    – উত্তর করা হয়নি (০.০০)
+                                    – {{ __t('উত্তর করা হয়নি (০.০০)', 'Not Answered (0.00)') }}
                                 </span>
                             @else
-                                <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-black">
-                                    ✗ ভুল ({{ $ans->marks_awarded }})
+                                <span class="px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-black">
+                                    ✗ {{ __t('ভুল', 'Incorrect') }} ({{ $ans->marks_awarded }})
                                 </span>
                             @endif
                         </div>
@@ -169,7 +173,7 @@
                             @endphp
 
                             <div class="flex items-center p-3.5 rounded-2xl border text-sm font-semibold select-none
-                                {{ $isThisCorrect ? 'bg-emerald-50/90 border-emerald-500 text-emerald-950 ring-2 ring-emerald-500/20' : ($isThisSelected && !$isThisCorrect ? 'bg-rose-50 border-rose-500 text-rose-950 ring-2 ring-rose-500/20' : 'bg-slate-50/60 border-slate-200 text-slate-700') }}">
+                                {{ $isThisCorrect ? 'bg-emerald-50/80 border-emerald-500 text-emerald-950 ring-1 ring-emerald-500/20' : ($isThisSelected && !$isThisCorrect ? 'bg-rose-50 border-rose-400 text-rose-950 ring-1 ring-rose-400/20' : 'bg-slate-50 border-slate-200 text-slate-700') }}">
                                 
                                 <div class="w-7 h-7 rounded-xl font-bold text-xs flex items-center justify-center mr-3 shrink-0
                                     {{ $isThisCorrect ? 'bg-emerald-600 text-white' : ($isThisSelected && !$isThisCorrect ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 border border-slate-300') }}">
@@ -191,8 +195,8 @@
 
                     <!-- Solution & Explanation Box -->
                     @if($q->explanation_bn)
-                        <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 text-xs space-y-2">
-                            <div class="font-bold text-indigo-900 flex items-center space-x-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/60 border border-slate-100 text-xs space-y-2">
+                            <div class="font-bold text-slate-800 flex items-center space-x-1.5">
                                 <span>💡</span>
                                 <span>বিস্তারিত ব্যাখ্যা ও সমাধান:</span>
                             </div>
@@ -200,7 +204,7 @@
                                 {!! $q->explanation_bn !!}
                             </div>
                             @if($q->reference_source)
-                                <div class="pt-2 border-t border-indigo-100/80 text-[11px] text-indigo-700 font-semibold">
+                                <div class="pt-2 border-t border-slate-100/80 text-[11px] text-indigo-700 font-semibold">
                                     📚 সূত্র / রেফারেন্স: {{ $q->reference_source }}
                                 </div>
                             @endif
@@ -211,7 +215,7 @@
         </div>
 
         <div class="text-center py-8">
-            <a href="{{ route('exams.index') }}" class="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm shadow-md transition">
+            <a href="{{ route('exams.index') }}" class="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm shadow-xs transition">
                 আরেকটি মডেল টেস্ট দিন →
             </a>
         </div>

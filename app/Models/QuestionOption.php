@@ -12,6 +12,8 @@ class QuestionOption extends Model
         'option_letter',
         'option_text_bn',
         'option_text_en',
+        'explanation_bn',
+        'explanation_en',
         'is_correct',
         'order',
     ];

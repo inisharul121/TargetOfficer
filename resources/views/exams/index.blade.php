@@ -7,12 +7,12 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">সকল মডেল টেস্ট ও পরীক্ষা</h1>
-                <p class="text-xs sm:text-sm text-slate-500 mt-1">বিসিএস প্রিলিমিনারি, ব্যাংক অফিসার, এবং স্পেশালাইজড নিয়োগের জন্য সাজানো টেস্ট প্যাকেজ।</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ __t('সকল মডেল টেস্ট ও পরীক্ষা', 'All Model Tests & Exams') }}</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">{{ __t('বিসিএস প্রিলিমিনারি, ব্যাংক অফিসার, এবং স্পেশালাইজড নিয়োগের জন্য সাজানো টেস্ট প্যাকেজ।', 'Curated test packages for BCS Preliminary, Bank Officer, and specialized recruitments.') }}</p>
             </div>
-            <a href="{{ route('exams.custom') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-sm transition space-x-2 shrink-0">
+            <a href="{{ route('exams.custom') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition space-x-2 shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                <span>কাস্টম টেস্ট জেনারেটর</span>
+                <span>⚡ {{ __t('কাস্টম টেস্ট জেনারেটর', 'Custom Test Generator') }}</span>
             </a>
         </div>
 
@@ -20,11 +20,11 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
             <form method="GET" action="{{ route('exams.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="মডেল টেস্ট খুঁজুন..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="মডেল টেস্ট খুঁজুন..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none">
                 </div>
 
                 <div>
-                    <select name="mode" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none bg-white">
+                    <select name="mode" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none bg-white">
                         <option value="">সকল মোড (All Modes)</option>
                         <option value="timed_mock" {{ request('mode') === 'timed_mock' ? 'selected' : '' }}>⏱️ Timed Mock Test</option>
                         <option value="practice" {{ request('mode') === 'practice' ? 'selected' : '' }}>💡 Practice (Untimed)</option>
@@ -33,7 +33,7 @@
                 </div>
 
                 <div>
-                    <select name="org" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none bg-white">
+                    <select name="org" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none bg-white">
                         <option value="">সকল প্রশ্নকর্তা সংস্থা</option>
                         @foreach($organizations as $org)
                             <option value="{{ $org->id }}" {{ request('org') == $org->id ? 'selected' : '' }}>{{ $org->code ?? $org->name_en }}</option>
@@ -57,10 +57,10 @@
         <!-- Exams Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($exams as $exam)
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs hover:shadow-xl hover:border-indigo-300 transition duration-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 transition duration-300 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg {{ $exam->exam_mode === 'timed_mock' ? 'bg-indigo-100 text-indigo-700' : ($exam->exam_mode === 'practice' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700') }}">
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg {{ $exam->exam_mode === 'timed_mock' ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-700' }}">
                                 {{ $exam->exam_mode === 'timed_mock' ? '⏱️ Timed Mock' : ($exam->exam_mode === 'practice' ? '💡 Practice' : '⚡ Daily Quiz') }}
                             </span>
                             @if($exam->organization)

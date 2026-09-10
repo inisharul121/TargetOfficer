@@ -1,6 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAnalyticsController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminExamController;
 use App\Http\Controllers\Admin\AdminQuestionController;
+use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\AdminTaxonomyController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
@@ -10,7 +16,14 @@ use App\Http\Controllers\PracticeController;
 use App\Http\Controllers\QuestionBankController;
 use Illuminate\Support\Facades\Route;
 
-// Public Routes
+// Public Routes & Language Switch
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['bn', 'en'])) {
+        session(['locale' => $locale]);
+    }
+    return back();
+})->name('lang.switch');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
 Route::get('/exams/{exam:slug}', [ExamController::class, 'show'])->name('exams.show');
@@ -42,16 +55,65 @@ Route::middleware('auth')->group(function () {
     Route::get('/custom-exam', [ExamController::class, 'createCustom'])->name('exams.custom');
     Route::post('/custom-exam', [ExamController::class, 'storeCustom'])->name('exams.custom.store');
 
-    // Bookmarks & Reports
+    // Student Learning Hub & Performance Analytics
+    Route::get('/student/progress', [\App\Http\Controllers\StudentAnalyticsController::class, 'progress'])->name('student.progress');
+    Route::get('/student/mistakes', [\App\Http\Controllers\StudentAnalyticsController::class, 'mistakes'])->name('student.mistakes');
+    Route::post('/student/mistakes/retake', [\App\Http\Controllers\StudentAnalyticsController::class, 'retakeMistakes'])->name('student.mistakes.retake');
+    Route::get('/student/bookmarks', [\App\Http\Controllers\StudentAnalyticsController::class, 'bookmarks'])->name('student.bookmarks');
+
+    // Bookmarks, Reports & Discussion Threads
     Route::post('/questions/{question}/bookmark', [QuestionBankController::class, 'toggleBookmark'])->name('questions.bookmark');
     Route::post('/questions/{question}/report', [QuestionBankController::class, 'reportQuestion'])->name('questions.report');
+    Route::post('/questions/{question}/comments', [QuestionBankController::class, 'addComment'])->name('questions.comments.store');
+    Route::post('/comments/{comment}/upvote', [QuestionBankController::class, 'upvoteComment'])->name('comments.upvote');
 
-    // Admin & Setter CMS
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Admin & Staff CMS Portal
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        // Admin Dashboard
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // Exams Management & Builder
+        Route::get('/exams', [AdminExamController::class, 'index'])->name('exams.index');
+        Route::get('/exams/create', [AdminExamController::class, 'create'])->name('exams.create');
+        Route::post('/exams', [AdminExamController::class, 'store'])->name('exams.store');
+        Route::get('/exams/{exam}/edit', [AdminExamController::class, 'edit'])->name('exams.edit');
+        Route::put('/exams/{exam}', [AdminExamController::class, 'update'])->name('exams.update');
+        Route::delete('/exams/{exam}', [AdminExamController::class, 'destroy'])->name('exams.destroy');
+        Route::get('/exams/{exam}/builder', [AdminExamController::class, 'builder'])->name('exams.builder');
+        Route::post('/exams/{exam}/attach-question', [AdminExamController::class, 'attachQuestion'])->name('exams.attach-question');
+        Route::post('/exams/{exam}/detach-question/{question}', [AdminExamController::class, 'detachQuestion'])->name('exams.detach-question');
+        Route::post('/exams/{exam}/auto-assign', [AdminExamController::class, 'autoAssignQuestions'])->name('exams.auto-assign');
+
+        // Questions Management
         Route::get('/questions', [AdminQuestionController::class, 'index'])->name('questions.index');
         Route::get('/questions/create', [AdminQuestionController::class, 'create'])->name('questions.create');
         Route::post('/questions', [AdminQuestionController::class, 'store'])->name('questions.store');
         Route::get('/questions/template', [AdminQuestionController::class, 'downloadTemplate'])->name('questions.template');
         Route::post('/questions/bulk-upload', [AdminQuestionController::class, 'bulkUpload'])->name('questions.bulk-upload');
+        Route::get('/questions/duplicates', [AdminQuestionController::class, 'duplicates'])->name('questions.duplicates');
+        Route::post('/questions/resolve-duplicate', [AdminQuestionController::class, 'resolveDuplicate'])->name('questions.resolve-duplicate');
+        Route::get('/questions/{question}/edit', [AdminQuestionController::class, 'edit'])->name('questions.edit');
+        Route::put('/questions/{question}', [AdminQuestionController::class, 'update'])->name('questions.update');
+        Route::delete('/questions/{question}', [AdminQuestionController::class, 'destroy'])->name('questions.destroy');
+
+        // Question Reports Moderation Queue
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+        Route::put('/reports/{report}/status', [AdminReportController::class, 'updateStatus'])->name('reports.status');
+        Route::delete('/reports/{report}', [AdminReportController::class, 'destroy'])->name('reports.destroy');
+
+        // Taxonomies
+        Route::get('/taxonomies', [AdminTaxonomyController::class, 'index'])->name('taxonomies.index');
+        Route::post('/taxonomies/subject', [AdminTaxonomyController::class, 'storeSubject'])->name('taxonomies.subject.store');
+        Route::post('/taxonomies/topic', [AdminTaxonomyController::class, 'storeTopic'])->name('taxonomies.topic.store');
+        Route::post('/taxonomies/organization', [AdminTaxonomyController::class, 'storeOrganization'])->name('taxonomies.organization.store');
+        Route::post('/taxonomies/exam-type', [AdminTaxonomyController::class, 'storeExamType'])->name('taxonomies.exam-type.store');
+        Route::post('/taxonomies/exam-year', [AdminTaxonomyController::class, 'storeExamYear'])->name('taxonomies.exam-year.store');
+
+        // User & Role Management
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::put('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.role');
+
+        // Analytics & Question Calibration
+        Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
     });
 });

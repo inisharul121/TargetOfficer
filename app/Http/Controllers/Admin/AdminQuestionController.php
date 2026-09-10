@@ -18,27 +18,56 @@ class AdminQuestionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Question::with(['subject', 'topic', 'setterOrganization', 'options']);
+        $query = Question::with(['subject', 'topic', 'setterOrganization', 'options', 'tags']);
 
         if ($request->filled('subject_id')) {
             $query->where('subject_id', $request->subject_id);
         }
+        if ($request->filled('setter_id')) {
+            $query->where('setter_organization_id', $request->setter_id);
+        }
+        if ($request->filled('difficulty')) {
+            $query->where('difficulty', $request->difficulty);
+        }
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+        if ($request->filled('q')) {
+            $term = '%' . $request->q . '%';
+            $query->where(function ($sub) use ($term) {
+                $sub->where('stem_bn', 'like', $term)
+                    ->orWhere('stem_en', 'like', $term)
+                    ->orWhere('explanation_bn', 'like', $term);
+            });
         }
 
         $questions = $query->latest()->paginate(20)->withQueryString();
         $subjects = Subject::all();
+        $setters = Organization::where('is_question_setter', true)->get();
 
-        return view('admin.questions.index', compact('questions', 'subjects'));
+        return view('admin.questions.index', compact('questions', 'subjects', 'setters'));
     }
 
     public function create()
     {
-        $subjects = Subject::with('topics')->get();
+        $subjects = Subject::with(['topics.subtopics'])->orderBy('order')->get();
         $setters = Organization::where('is_question_setter', true)->get();
 
-        return view('admin.questions.create', compact('subjects', 'setters'));
+        // Build client-side cascade maps
+        $topicsBySubject = [];
+        $subtopicsByTopic = [];
+        foreach ($subjects as $sb) {
+            foreach ($sb->topics as $tp) {
+                $topicsBySubject[$sb->id][] = ['id' => $tp->id, 'name_bn' => $tp->name_bn];
+                foreach ($tp->subtopics as $st) {
+                    $subtopicsByTopic[$tp->id][] = ['id' => $st->id, 'name_bn' => $st->name_bn];
+                }
+            }
+        }
+
+        return view('admin.questions.create', compact(
+            'subjects', 'setters', 'topicsBySubject', 'subtopicsByTopic'
+        ));
     }
 
     public function store(Request $request)
@@ -46,16 +75,21 @@ class AdminQuestionController extends Controller
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
             'topic_id' => 'nullable|exists:topics,id',
+            'subtopic_id' => 'nullable|exists:subtopics,id',
             'setter_organization_id' => 'nullable|exists:organizations,id',
             'stem_bn' => 'required|string',
             'stem_en' => 'nullable|string',
             'difficulty' => 'required|in:easy,medium,hard',
-            'default_marks' => 'required|numeric|min:0.5',
+            'default_marks' => 'required|numeric|min:0.25',
             'negative_marks' => 'required|numeric|min:0',
             'explanation_bn' => 'nullable|string',
             'reference_source' => 'nullable|string',
+            'status' => 'required|in:draft,review,published,archived',
             'options' => 'required|array|min:2',
             'options.*.text_bn' => 'required|string',
+            'options.*.text_en' => 'nullable|string',
+            'options.*.explanation_bn' => 'nullable|string',
+            'options.*.explanation_en' => 'nullable|string',
             'correct_option' => 'required|integer',
             'tags' => 'nullable|string',
         ]);
@@ -64,6 +98,7 @@ class AdminQuestionController extends Controller
             $question = Question::create([
                 'subject_id' => $validated['subject_id'],
                 'topic_id' => $validated['topic_id'] ?? null,
+                'subtopic_id' => $validated['subtopic_id'] ?? null,
                 'setter_organization_id' => $validated['setter_organization_id'] ?? null,
                 'stem_bn' => $validated['stem_bn'],
                 'stem_en' => $validated['stem_en'] ?? null,
@@ -72,7 +107,7 @@ class AdminQuestionController extends Controller
                 'negative_marks' => $validated['negative_marks'],
                 'explanation_bn' => $validated['explanation_bn'] ?? null,
                 'reference_source' => $validated['reference_source'] ?? null,
-                'status' => 'published',
+                'status' => $validated['status'],
                 'created_by' => Auth::id(),
                 'verified_by' => Auth::id(),
             ]);
@@ -84,6 +119,8 @@ class AdminQuestionController extends Controller
                     'option_letter' => $letters[$index] ?? (string)($index + 1),
                     'option_text_bn' => $opt['text_bn'],
                     'option_text_en' => $opt['text_en'] ?? null,
+                    'explanation_bn' => $opt['explanation_bn'] ?? null,
+                    'explanation_en' => $opt['explanation_en'] ?? null,
                     'is_correct' => ($index == $validated['correct_option']),
                     'order' => $index + 1,
                 ]);
@@ -105,6 +142,171 @@ class AdminQuestionController extends Controller
         });
 
         return redirect()->route('admin.questions.index')->with('success', 'প্রশ্ন সফলভাবে তৈরি করা হয়েছে!');
+    }
+
+    public function edit(Question $question)
+    {
+        $question->load(['options', 'tags', 'subject', 'topic', 'subtopic', 'setterOrganization']);
+        $subjects = Subject::with(['topics.subtopics'])->orderBy('order')->get();
+        $setters = Organization::where('is_question_setter', true)->get();
+
+        $topicsBySubject = [];
+        $subtopicsByTopic = [];
+        foreach ($subjects as $sb) {
+            foreach ($sb->topics as $tp) {
+                $topicsBySubject[$sb->id][] = ['id' => $tp->id, 'name_bn' => $tp->name_bn];
+                foreach ($tp->subtopics as $st) {
+                    $subtopicsByTopic[$tp->id][] = ['id' => $st->id, 'name_bn' => $st->name_bn];
+                }
+            }
+        }
+
+        return view('admin.questions.edit', compact(
+            'question', 'subjects', 'setters', 'topicsBySubject', 'subtopicsByTopic'
+        ));
+    }
+
+    public function update(Request $request, Question $question)
+    {
+        $validated = $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'topic_id' => 'nullable|exists:topics,id',
+            'subtopic_id' => 'nullable|exists:subtopics,id',
+            'setter_organization_id' => 'nullable|exists:organizations,id',
+            'stem_bn' => 'required|string',
+            'stem_en' => 'nullable|string',
+            'difficulty' => 'required|in:easy,medium,hard',
+            'default_marks' => 'required|numeric|min:0.25',
+            'negative_marks' => 'required|numeric|min:0',
+            'explanation_bn' => 'nullable|string',
+            'reference_source' => 'nullable|string',
+            'status' => 'required|in:draft,review,published,archived',
+            'options' => 'required|array|min:2',
+            'options.*.text_bn' => 'required|string',
+            'options.*.text_en' => 'nullable|string',
+            'correct_option' => 'required|integer',
+            'tags' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($validated, $question) {
+            $oldAttributes = $question->only([
+                'stem_bn', 'difficulty', 'default_marks', 'negative_marks', 'explanation_bn', 'status'
+            ]);
+
+            $question->update([
+                'subject_id' => $validated['subject_id'],
+                'topic_id' => $validated['topic_id'] ?? null,
+                'subtopic_id' => $validated['subtopic_id'] ?? null,
+                'setter_organization_id' => $validated['setter_organization_id'] ?? null,
+                'stem_bn' => $validated['stem_bn'],
+                'stem_en' => $validated['stem_en'] ?? null,
+                'difficulty' => $validated['difficulty'],
+                'default_marks' => $validated['default_marks'],
+                'negative_marks' => $validated['negative_marks'],
+                'explanation_bn' => $validated['explanation_bn'] ?? null,
+                'reference_source' => $validated['reference_source'] ?? null,
+                'status' => $validated['status'],
+                'verified_by' => Auth::id(),
+            ]);
+
+            \App\Models\QuestionAuditLog::create([
+                'question_id' => $question->id,
+                'user_id' => Auth::id(),
+                'action_type' => 'updated',
+                'old_values' => $oldAttributes,
+                'new_values' => $question->only([
+                    'stem_bn', 'difficulty', 'default_marks', 'negative_marks', 'explanation_bn', 'status'
+                ]),
+            ]);
+
+            // Recreate options
+            $question->options()->delete();
+            $letters = ['A', 'B', 'C', 'D', 'E'];
+            foreach ($validated['options'] as $index => $opt) {
+                QuestionOption::create([
+                    'question_id' => $question->id,
+                    'option_letter' => $letters[$index] ?? (string)($index + 1),
+                    'option_text_bn' => $opt['text_bn'],
+                    'option_text_en' => $opt['text_en'] ?? null,
+                    'explanation_bn' => $opt['explanation_bn'] ?? null,
+                    'explanation_en' => $opt['explanation_en'] ?? null,
+                    'is_correct' => ($index == $validated['correct_option']),
+                    'order' => $index + 1,
+                ]);
+            }
+
+            // Sync tags
+            $question->tags()->delete();
+            if (!empty($validated['tags'])) {
+                $tags = explode(',', $validated['tags']);
+                foreach ($tags as $tag) {
+                    $trimmed = trim($tag);
+                    if ($trimmed) {
+                        QuestionTag::create([
+                            'question_id' => $question->id,
+                            'tag_type' => 'pattern',
+                            'tag_value' => $trimmed,
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('admin.questions.index')->with('success', 'প্রশ্ন সফলভাবে আপডেট করা হয়েছে!');
+    }
+
+    public function destroy(Question $question)
+    {
+        $question->delete();
+        return redirect()->route('admin.questions.index')->with('success', 'প্রশ্নটি সফলভাবে মুছে ফেলা হয়েছে।');
+    }
+
+    public function duplicates()
+    {
+        // Duplicate detection by stem matching or similar stems
+        $allQuestions = Question::with(['subject', 'setterOrganization', 'tags'])->get();
+        $duplicatesGrouped = [];
+
+        foreach ($allQuestions as $q) {
+            $cleanStem = mb_strtolower(trim(preg_replace('/[^\p{L}\p{N}\s]/u', '', strip_tags($q->stem_bn))));
+            if (mb_strlen($cleanStem) > 8) {
+                $duplicatesGrouped[$cleanStem][] = $q;
+            }
+        }
+
+        $duplicates = array_filter($duplicatesGrouped, function ($group) {
+            return count($group) > 1;
+        });
+
+        return view('admin.questions.duplicates', compact('duplicates'));
+    }
+
+    public function resolveDuplicate(Request $request)
+    {
+        $request->validate([
+            'keep_question_id' => 'required|exists:questions,id',
+            'delete_question_id' => 'required|exists:questions,id|different:keep_question_id',
+        ]);
+
+        $keep = Question::findOrFail($request->keep_question_id);
+        $delete = Question::findOrFail($request->delete_question_id);
+
+        // Merge tags from delete into keep
+        $existingTags = $keep->tags->pluck('tag_value')->toArray();
+        foreach ($delete->tags as $tag) {
+            if (!in_array($tag->tag_value, $existingTags)) {
+                QuestionTag::create([
+                    'question_id' => $keep->id,
+                    'tag_type' => $tag->tag_type,
+                    'tag_value' => $tag->tag_value,
+                ]);
+            }
+        }
+
+        // Delete duplicate question
+        $delete->delete();
+
+        return back()->with('success', 'ডুপ্লিকেট প্রশ্ন সফলভাবে মার্জ এবং অপসারিত হয়েছে!');
     }
 
     public function downloadTemplate()
@@ -146,7 +348,6 @@ class AdminQuestionController extends Controller
 
         $callback = function () use ($columns, $sampleRow) {
             $file = fopen('php://output', 'w');
-            // Write UTF-8 BOM for Excel Bangla support
             fputs($file, "\xEF\xBB\xBF");
             fputcsv($file, $columns);
             fputcsv($file, $sampleRow);
@@ -165,7 +366,6 @@ class AdminQuestionController extends Controller
         $file = $request->file('csv_file');
         $handle = fopen($file->getPathname(), 'r');
 
-        // Check BOM
         $bom = fread($handle, 3);
         if ($bom !== "\xEF\xBB\xBF") {
             rewind($handle);

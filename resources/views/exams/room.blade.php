@@ -34,11 +34,11 @@
 
                 <!-- View Mode Toggle (Single Card vs Full Paper) -->
                 <div class="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
-                    <button type="button" @click="viewMode = 'single'" :class="viewMode === 'single' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
+                    <button type="button" @click="viewMode = 'single'" :class="viewMode === 'single' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span>কার্ড ভিউ</span>
                     </button>
-                    <button type="button" @click="viewMode = 'paper'" :class="viewMode === 'paper' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
+                    <button type="button" @click="viewMode = 'paper'" :class="viewMode === 'paper' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                         <span>পেপার ভিউ</span>
                     </button>
@@ -48,7 +48,7 @@
             <!-- Right: Timer, Autosave Status & Submit Button -->
             <div class="flex items-center space-x-3">
                 <!-- Tab switch alert count -->
-                <div x-show="tabSwitches > 0" class="hidden sm:flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold" title="ট্যাব পরিবর্তন কাউন্টার">
+                <div x-show="tabSwitches > 0" class="hidden sm:flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold" title="ট্যাব পরিবর্তন কাউন্টার">
                     <span>⚠️</span>
                     <span x-text="tabSwitches + ' বার সুইচ'"></span>
                 </div>
@@ -56,15 +56,15 @@
                 <!-- Timer -->
                 @if($exam->duration_minutes > 0)
                     <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border font-black text-sm"
-                         :class="remainingSeconds < 120 ? 'bg-rose-50 border-rose-300 text-rose-600 animate-pulse' : 'bg-indigo-50 border-indigo-200 text-indigo-700'">
+                         :class="remainingSeconds < 120 ? 'bg-rose-50 border-rose-300 text-rose-600 animate-pulse' : 'bg-slate-50 border-slate-200 text-slate-800'">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span x-text="formatTimer()"></span>
                     </div>
                 @endif
 
                 <!-- Submit Button -->
-                <button type="button" @click="showSubmitModal = true" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center space-x-1">
-                    <span>জমা দিন</span>
+                <button type="button" @click="showSubmitModal = true" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition flex items-center space-x-1">
+                    <span>{{ __t('জমা দিন', 'Submit') }}</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 </button>
             </div>
@@ -81,7 +81,7 @@
                 <!-- 1. SINGLE CARD VIEW -->
                 <div x-show="viewMode === 'single'" class="space-y-6">
                     @foreach($questions as $index => $q)
-                        <div x-show="currentIndex === {{ $index }}" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-6">
+                        <div x-show="currentIndex === {{ $index }}" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
                             
                             <!-- Question Header -->
                             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -89,11 +89,11 @@
                                     <span class="w-8 h-8 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
                                         {{ $index + 1 }}
                                     </span>
-                                    <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                                    <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
                                         {{ $q->subject->name_bn }}
                                     </span>
                                     @if($q->setterOrganization)
-                                        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg">
+                                        <span class="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
                                             {{ $q->setterOrganization->code }}
                                         </span>
                                     @endif
@@ -101,7 +101,7 @@
 
                                 <!-- Bookmark / Flag for Review -->
                                 <button type="button" @click="toggleReview({{ $q->id }})" 
-                                        :class="isFlagged({{ $q->id }}) ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'"
+                                        :class="isFlagged({{ $q->id }}) ? 'bg-amber-50 text-amber-800 border-amber-300' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'"
                                         class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition">
                                     <span x-text="isFlagged({{ $q->id }}) ? '⭐ চিহ্নিত' : '☆ রিভিউতে রাখুন'"></span>
                                 </button>
@@ -109,10 +109,10 @@
 
                             <!-- Question Stem (LaTeX KaTeX rendered) -->
                             <div class="math-tex text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
-                                {!! $q->stem_bn !!}
+                                {!! app()->getLocale() === 'en' && !empty($q->stem_en) ? $q->stem_en : $q->stem_bn !!}
                             </div>
 
-                            @if($q->stem_en)
+                            @if(app()->getLocale() === 'bn' && $q->stem_en)
                                 <div class="math-tex text-xs text-slate-500 font-medium italic">
                                     {!! $q->stem_en !!}
                                 </div>
@@ -122,7 +122,7 @@
                             <div class="space-y-3 pt-2">
                                 @foreach($q->options as $opt)
                                     <label @click="selectAnswer({{ $q->id }}, {{ $opt->id }})" 
-                                           :class="answers[{{ $q->id }}] == {{ $opt->id }} ? 'bg-indigo-50/80 border-indigo-600 ring-2 ring-indigo-500/20 shadow-xs' : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200'"
+                                           :class="answers[{{ $q->id }}] == {{ $opt->id }} ? 'bg-indigo-50 border-indigo-600 ring-1 ring-indigo-500/30 shadow-xs' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'"
                                            class="flex items-center p-4 rounded-2xl border cursor-pointer transition select-none group">
                                         
                                         <div :class="answers[{{ $q->id }}] == {{ $opt->id }} ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300 group-hover:border-slate-400'"
@@ -131,7 +131,7 @@
                                         </div>
 
                                         <div class="math-tex text-sm font-semibold text-slate-800 flex-1">
-                                            {!! $opt->option_text_bn !!}
+                                            {!! app()->getLocale() === 'en' && !empty($opt->option_text_en) ? $opt->option_text_en : $opt->option_text_bn !!}
                                         </div>
 
                                         <div x-show="answers[{{ $q->id }}] == {{ $opt->id }}" class="text-indigo-600">
@@ -189,7 +189,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                                 @foreach($q->options as $opt)
                                     <label @click="selectAnswer({{ $q->id }}, {{ $opt->id }})" 
-                                           :class="answers[{{ $q->id }}] == {{ $opt->id }} ? 'bg-indigo-50 border-indigo-600 ring-2 ring-indigo-500/20' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'"
+                                           :class="answers[{{ $q->id }}] == {{ $opt->id }} ? 'bg-indigo-50 border-indigo-600 ring-1 ring-indigo-500/30' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'"
                                            class="flex items-center p-3 rounded-xl border cursor-pointer transition select-none">
                                         
                                         <div :class="answers[{{ $q->id }}] == {{ $opt->id }} ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300'"
@@ -214,12 +214,12 @@
                     
                     <h3 class="font-black text-sm text-slate-900 border-b border-slate-100 pb-3 flex items-center justify-between">
                         <span>প্রশ্ন প্যালেট (Status Palette)</span>
-                        <span class="text-xs font-bold text-indigo-600" x-text="answeredCount() + '/' + totalQuestions"></span>
+                        <span class="text-xs font-bold text-indigo-700" x-text="answeredCount() + '/' + totalQuestions"></span>
                     </h3>
 
                     <!-- Palette Legend -->
                     <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-center">
-                        <div class="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg border border-emerald-200">
+                        <div class="bg-indigo-50 text-indigo-700 p-1.5 rounded-lg border border-indigo-200">
                             <span class="block text-xs font-black" x-text="answeredCount()"></span>
                             <span>উত্তর প্রদত্ত</span>
                         </div>
@@ -247,10 +247,10 @@
                     <div class="pt-3 border-t border-slate-100 space-y-2">
                         <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium">
                             <span>অটো-সেভ স্ট্যাটাস:</span>
-                            <span class="text-emerald-600 font-bold" x-text="saveStatus"></span>
+                            <span class="text-emerald-700 font-bold" x-text="saveStatus"></span>
                         </div>
                         
-                        <button type="button" @click="showSubmitModal = true" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md shadow-indigo-200 transition">
+                        <button type="button" @click="showSubmitModal = true" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-xs transition">
                             পরীক্ষা সমাপ্ত ও জমা দিন
                         </button>
                     </div>
@@ -260,7 +260,7 @@
     </div>
 
     <!-- Submit Confirmation Modal -->
-    <div x-show="showSubmitModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" x-transition>
+    <div x-show="showSubmitModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-700/40 backdrop-blur-xs" x-transition>
         <div @click.outside="showSubmitModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 space-y-6">
             <div class="text-center space-y-2">
                 <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-2xl font-bold">
@@ -273,7 +273,7 @@
             <!-- Submission Stats Box -->
             <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/70 grid grid-cols-3 gap-2 text-center">
                 <div>
-                    <div class="text-lg font-black text-emerald-600" x-text="answeredCount()"></div>
+                    <div class="text-lg font-black text-indigo-600" x-text="answeredCount()"></div>
                     <div class="text-[10px] font-bold text-slate-500">উত্তর করেছেন</div>
                 </div>
                 <div>
@@ -299,7 +299,7 @@
                     <button type="button" @click="showSubmitModal = false" class="w-1/2 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 font-bold text-xs text-slate-600 transition">
                         পরীক্ষায় ফিরে যান
                     </button>
-                    <button type="submit" class="w-1/2 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md shadow-indigo-200 transition">
+                    <button type="submit" class="w-1/2 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-xs transition">
                         হ্যাঁ, জমা দিন
                     </button>
                 </div>
@@ -372,8 +372,9 @@ function examEngine(config) {
         },
 
         formatTimer() {
-            const m = Math.floor(this.remainingSeconds / 60);
-            const s = this.remainingSeconds % 60;
+            const totalSecs = Math.max(0, Math.floor(this.remainingSeconds));
+            const m = Math.floor(totalSecs / 60);
+            const s = totalSecs % 60;
             return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
         },
 
@@ -438,13 +439,13 @@ function examEngine(config) {
 
         getPaletteClass(index, questionId) {
             if (this.currentIndex === index && this.viewMode === 'single') {
-                return 'ring-2 ring-indigo-600 bg-indigo-100 text-indigo-800 border-indigo-300';
+                return 'ring-2 ring-indigo-600 bg-indigo-50 text-indigo-700 border-indigo-300 font-black';
             }
             if (this.answers[questionId]) {
-                return 'bg-emerald-600 text-white border-emerald-600';
+                return 'bg-indigo-600 text-white border-indigo-600';
             }
             if (this.flagged[questionId]) {
-                return 'bg-amber-400 text-slate-900 border-amber-400';
+                return 'bg-amber-100 text-amber-900 border-amber-300 font-bold';
             }
             return 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
         },

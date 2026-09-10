@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 @import 'katex/dist/katex.min.css';
 @import 'tailwindcss';
 
@@ -7,32 +7,141 @@
 @source '../views/**/*.blade.php';
 
 @theme {
-    --font-sans: 'Plus Jakarta Sans', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-sans: 'Inter', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-bangla: 'Hind Siliguri', sans-serif;
+    --font-heading: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+
+    /* Clean Solid Brand Palette */
+    --color-brand-50:  #eef2ff;
+    --color-brand-100: #e0e7ff;
+    --color-brand-500: #6366f1;
+    --color-brand-600: #4f46e5;
+    --color-brand-700: #4338ca;
+
+    --color-surface-bg:     #f8fafc;
+    --color-surface-card:   #ffffff;
+    --color-surface-border: #e2e8f0;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background-color: #f8fafc;
+    color: #1e293b;
 }
 
 .katex {
     font-size: 1.1em;
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+/* ── Clean Solid Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Smooth Fade-in ── */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
+.animate-fade-up { animation: fadeSlideUp 0.35s ease both; }
+
+/* ── Solid Primary Action Buttons ── */
+.btn-primary {
+    background-color: #4f46e5;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 9999px;
+.btn-primary:hover {
+    background-color: #4338ca;
 }
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+.btn-primary:active { transform: translateY(1px); }
+
+.btn-steel {
+    background-color: #475569;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-steel:hover {
+    background-color: #334155;
+}
+.btn-steel:active { transform: translateY(1px); }
+
+/* Solid accents */
+.btn-teal {
+    background-color: #0d9488;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-teal:hover {
+    background-color: #0f766e;
+}
+
+.btn-amber {
+    background-color: #d97706;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-amber:hover {
+    background-color: #b45309;
+}
+
+/* ── Clean Solid Card Styling ── */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* ── Progress bar animation ── */
+@keyframes progressGrow {
+    from { width: 0%; }
+}
+.progress-bar-animated { animation: progressGrow 0.8s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+/* ── Form Inputs Focus ── */
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+    border-color: #6366f1 !important;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+@media print {
+    nav, footer, .no-print, button { display: none !important; }
+    body { background: white !important; }
+    .shadow-2xl, .shadow-xl, .shadow-md, .shadow-sm, .shadow-xs { box-shadow: none !important; }
 }

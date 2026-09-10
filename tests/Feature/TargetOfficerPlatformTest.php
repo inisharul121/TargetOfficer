@@ -35,6 +35,22 @@ class TargetOfficerPlatformTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_candidate_can_register_without_target_exam(): void
+    {
+        $response = $this->post(route('register.post'), [
+            'name' => 'New Candidate',
+            'email' => 'newcandidate@example.com',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticated();
+        $this->assertDatabaseHas('users', [
+            'email' => 'newcandidate@example.com',
+        ]);
+    }
+
     public function test_candidate_dashboard_renders(): void
     {
         $user = User::where('email', 'candidate@targetofficer.com')->first();
@@ -42,7 +58,61 @@ class TargetOfficerPlatformTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('স্বাগতম');
-        $response->assertSee('স্টাডি স্ট্রাইক');
+        $response->assertSee('নির্ভুলতার হার');
+        $response->assertDontSee('অ্যাডমিন হাব');
+        $response->assertDontSee('প্রশ্ন ব্যাংক রিপোজিটরি');
+        $response->assertDontSee('ক্যালিব্রেশন অ্যানালিটিক্স');
+    }
+
+    public function test_student_portal_pages_render(): void
+    {
+        $user = User::where('email', 'candidate@targetofficer.com')->first();
+
+        // 1. Progress page
+        $progressRes = $this->actingAs($user)->get(route('student.progress'));
+        $progressRes->assertStatus(200);
+        $progressRes->assertSee('পারফরম্যান্স ও অগ্রগতি');
+
+        // 2. Mistake bank
+        $mistakeRes = $this->actingAs($user)->get(route('student.mistakes'));
+        $mistakeRes->assertStatus(200);
+        $mistakeRes->assertSee('ভুল উত্তরের ব্যাংক');
+
+        // 3. Custom exam setup page
+        $customRes = $this->actingAs($user)->get(route('exams.custom'));
+        $customRes->assertStatus(200);
+        $customRes->assertSee('কাস্টম পরীক্ষা');
+
+        // 4. Practice reading mode
+        $practiceRes = $this->actingAs($user)->get(route('practice.index'));
+        $practiceRes->assertStatus(200);
+        $practiceRes->assertSee('বিষয়ভিত্তিক অনুশীলন');
+
+        // 5. Question bank archive
+        $qbRes = $this->actingAs($user)->get(route('question-bank.index'));
+        $qbRes->assertStatus(200);
+        $qbRes->assertSee('প্রশ্ন ব্যাংক');
+    }
+
+    public function test_generate_custom_exam_with_filters(): void
+    {
+        $user = User::where('email', 'candidate@targetofficer.com')->first();
+        $exam = Exam::first();
+
+        $postRes = $this->actingAs($user)->post(route('exams.custom.store'), [
+            'title' => 'My Custom Practice Test',
+            'exam_id' => $exam->id,
+            'question_count' => 10,
+            'duration_minutes' => 15,
+            'negative_marking' => 0.25,
+            'pool_type' => 'all',
+        ]);
+
+        $postRes->assertRedirect();
+        $this->assertDatabaseHas('exams', [
+            'exam_mode' => 'custom',
+            'created_by' => $user->id,
+        ]);
     }
 
     public function test_exams_index_and_show_pages(): void
@@ -60,15 +130,16 @@ class TargetOfficerPlatformTest extends TestCase
 
     public function test_exam_room_and_submission_with_scoring(): void
     {
+        // Use an existing exam with questions
         $user = User::where('email', 'candidate@targetofficer.com')->first();
-        $exam = Exam::where('exam_mode', 'timed_mock')->first();
+        $exam = Exam::where('exam_mode', 'daily_quiz')->first() ?? Exam::has('questions')->first() ?? Exam::first();
 
         // 1. Enter exam room
         $roomRes = $this->actingAs($user)->get(route('exams.room', $exam->slug));
         $roomRes->assertStatus(200);
         $roomRes->assertSee('জমা দিন');
 
-        $attempt = ExamAttempt::where('user_id', $user->id)->where('exam_id', $exam->id)->first();
+        $attempt = ExamAttempt::where('user_id', $user->id)->where('exam_id', $exam->id)->where('status', 'in_progress')->first();
         $this->assertNotNull($attempt);
         $this->assertEquals('in_progress', $attempt->status);
 
@@ -124,9 +195,26 @@ class TargetOfficerPlatformTest extends TestCase
         $resBank = $this->get(route('question-bank.index'));
         $resBank->assertStatus(200);
         $resBank->assertSee('প্রশ্ন ব্যাংক ও প্রশ্নকর্তা প্যাটার্ন আর্কাইভ');
+    }
 
-        $resLeaderboard = $this->get(route('leaderboard.index'));
-        $resLeaderboard->assertStatus(200);
-        $resLeaderboard->assertSee('শীর্ষ ক্যান্ডিডেট র‍্যাংকিং');
+    public function test_candidate_can_post_question_discussion_comment(): void
+    {
+        $user = User::where('email', 'candidate@targetofficer.com')->first();
+        $question = Question::first();
+
+        $initialCoins = $user->coins;
+
+        $response = $this->actingAs($user)->post(route('questions.comments.store', $question->id), [
+            'comment' => 'চর্যাপদের আদি কবি লুইপা হলেও সর্বাধিক পদ রচয়িতা কাহ্নপা। এটি গুরুত্বপূর্ণ তথ্য।',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('question_comments', [
+            'question_id' => $question->id,
+            'user_id' => $user->id,
+        ]);
+
+        $user->refresh();
+        $this->assertEquals($initialCoins + 5, $user->coins);
     }
 }

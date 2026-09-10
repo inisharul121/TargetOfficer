@@ -191,31 +191,108 @@ class ExamService
     }
 
     /**
-     * Generate custom quiz on the fly.
+     * Generate custom quiz on the fly with rich filtering and question pool selection.
      */
     public function generateCustomExam(User $user, array $filters): Exam
     {
         $query = Question::where('status', 'published');
 
-        if (!empty($filters['subject_id'])) {
-            $query->where('subject_id', $filters['subject_id']);
+        // 1. Exam Filter (e.g. 10th BCS, 11th BCS, etc.)
+        $examTitlePart = null;
+        if (!empty($filters['exam_id'])) {
+            $sourceExam = Exam::find($filters['exam_id']);
+            if ($sourceExam) {
+                $examTitlePart = $sourceExam->title_bn;
+                $query->whereHas('exams', function ($eq) use ($sourceExam) {
+                    $eq->where('exams.id', $sourceExam->id);
+                });
+            }
         }
+
+        // 2. Exam Taker / Setter Organization Filter
+        $setterTitlePart = null;
+        if (!empty($filters['setter_organization_id'])) {
+            $setterOrg = \App\Models\Organization::find($filters['setter_organization_id']);
+            if ($setterOrg) {
+                $setterTitlePart = $setterOrg->code ?: $setterOrg->name_bn;
+                $query->where('setter_organization_id', $setterOrg->id);
+            }
+        }
+
+        // 3. Subject Filter
+        $subjectTitlePart = null;
+        if (!empty($filters['subject_id'])) {
+            $subj = \App\Models\Subject::find($filters['subject_id']);
+            if ($subj) {
+                $subjectTitlePart = $subj->name_bn;
+                $query->where('subject_id', $subj->id);
+            }
+        }
+
+        // 4. Topic Filter
         if (!empty($filters['topic_id'])) {
             $query->where('topic_id', $filters['topic_id']);
         }
-        if (!empty($filters['setter_organization_id'])) {
-            $query->where('setter_organization_id', $filters['setter_organization_id']);
-        }
+
+        // 5. Difficulty Filter
         if (!empty($filters['difficulty'])) {
             $query->where('difficulty', $filters['difficulty']);
         }
 
-        $limit = min(50, max(5, (int)($filters['question_count'] ?? 10)));
+        // 6. Question Source Pool Selection
+        $poolType = $filters['pool_type'] ?? 'all';
+        if ($poolType === 'unattempted') {
+            $attemptedQuestionIds = AttemptAnswer::join('exam_attempts', 'attempt_answers.attempt_id', '=', 'exam_attempts.id')
+                ->where('exam_attempts.user_id', $user->id)
+                ->pluck('attempt_answers.question_id')
+                ->unique()
+                ->toArray();
+            $query->whereNotIn('id', $attemptedQuestionIds);
+        } elseif ($poolType === 'mistakes') {
+            $mistakeQuestionIds = AttemptAnswer::join('exam_attempts', 'attempt_answers.attempt_id', '=', 'exam_attempts.id')
+                ->where('exam_attempts.user_id', $user->id)
+                ->where('attempt_answers.is_correct', false)
+                ->pluck('attempt_answers.question_id')
+                ->unique()
+                ->toArray();
+            $query->whereIn('id', $mistakeQuestionIds);
+        } elseif ($poolType === 'bookmarked') {
+            $bookmarkedIds = \App\Models\Bookmark::where('user_id', $user->id)
+                ->pluck('question_id')
+                ->toArray();
+            $query->whereIn('id', $bookmarkedIds);
+        }
+
+        $limit = min(100, max(5, (int)($filters['question_count'] ?? 10)));
         $questions = $query->inRandomOrder()->limit($limit)->get();
 
-        $title = 'কাস্টম প্র্যাকটিস টেস্ট (' . date('d M, Y h:i A') . ')';
+        // Fallback if pool has fewer questions
+        if ($questions->isEmpty()) {
+            // If mistake or unattempted pool was empty, fall back to general pool with filters
+            $questions = Question::where('status', 'published')
+                ->when(!empty($filters['subject_id']), fn($q) => $q->where('subject_id', $filters['subject_id']))
+                ->when(!empty($filters['setter_organization_id']), fn($q) => $q->where('setter_organization_id', $filters['setter_organization_id']))
+                ->inRandomOrder()
+                ->limit($limit)
+                ->get();
+        }
 
-        return DB::transaction(function () use ($user, $questions, $title, $limit) {
+        // Generate descriptive Bengali title
+        $titleParts = array_filter([$examTitlePart, $setterTitlePart, $subjectTitlePart]);
+        if ($poolType === 'mistakes') {
+            $title = 'ভুল উত্তরের রিভিশন টেস্ট (' . ($titleParts ? implode(' - ', $titleParts) : 'সকল বিষয়') . ')';
+        } elseif (!empty($titleParts)) {
+            $title = implode(' • ', $titleParts) . ' কাস্টম টেস্ট';
+        } else {
+            $title = 'কাস্টম প্র্যাকটিস টেস্ট (' . date('d M, Y h:i A') . ')';
+        }
+
+        $negativeMark = isset($filters['negative_marking']) ? (float)$filters['negative_marking'] : 0.50;
+        $durationMinutes = !empty($filters['duration_minutes']) 
+            ? (int)$filters['duration_minutes'] 
+            : (int)max(5, ceil($questions->count() * 1.0));
+
+        return DB::transaction(function () use ($user, $questions, $title, $negativeMark, $durationMinutes) {
             $exam = Exam::create([
                 'title_bn' => $title,
                 'title_en' => 'Custom Practice Test',
@@ -223,8 +300,8 @@ class ExamService
                 'exam_mode' => 'custom',
                 'total_questions' => $questions->count(),
                 'total_marks' => $questions->count(),
-                'duration_minutes' => (int)ceil($questions->count() * 1.0), // 1 min per question
-                'negative_mark_per_question' => 0.50,
+                'duration_minutes' => $durationMinutes,
+                'negative_mark_per_question' => $negativeMark,
                 'is_published' => true,
                 'allow_pause' => true,
                 'shuffle_questions' => true,
@@ -237,7 +314,7 @@ class ExamService
                     'exam_id' => $exam->id,
                     'question_id' => $q->id,
                     'marks' => 1.00,
-                    'negative_marks' => 0.50,
+                    'negative_marks' => $negativeMark,
                     'order' => $index + 1,
                 ]);
             }

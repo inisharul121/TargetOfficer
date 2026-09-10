@@ -30,6 +30,11 @@ class Organization extends Model
         return $this->hasMany(Question::class, 'setter_organization_id');
     }
 
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class, 'setter_organization_id');
+    }
+
     public function exams(): HasMany
     {
         return $this->hasMany(Exam::class);
