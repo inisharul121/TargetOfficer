@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             BadgesSeeder::class,
             Bcs10thSeeder::class,
             Bcs11thSeeder::class,
+            Bcs12thSeeder::class,
             QuestionExplanationSeeder::class,
             LiveExamSeeder::class,
             StudyRoutineSeeder::class,
