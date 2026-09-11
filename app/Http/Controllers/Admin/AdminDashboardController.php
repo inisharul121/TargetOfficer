@@ -10,6 +10,9 @@ use App\Models\Question;
 use App\Models\QuestionReport;
 use App\Models\Subject;
 use App\Models\User;
+use App\Models\Book;
+use App\Models\BookChapter;
+use App\Models\BookWrittenContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -47,6 +50,11 @@ class AdminDashboardController extends Controller
             ->orderByDesc('questions_count')
             ->get();
 
+        // Digital Books & Topics Metric
+        $totalBooks = Book::count();
+        $totalChapters = BookChapter::count();
+        $totalTopics = BookWrittenContent::count();
+
         // Recent Attempts
         $recentAttempts = ExamAttempt::with(['user', 'exam'])
             ->latest()
@@ -74,6 +82,9 @@ class AdminDashboardController extends Controller
             'completedAttempts',
             'todayAttempts',
             'pendingReports',
+            'totalBooks',
+            'totalChapters',
+            'totalTopics',
             'setterStats',
             'subjectStats',
             'recentAttempts',

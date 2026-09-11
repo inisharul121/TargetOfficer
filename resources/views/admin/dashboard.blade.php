@@ -15,6 +15,10 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
+            <a href="{{ route('admin.books.index') }}" class="px-4 py-2.5 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-bold text-xs transition flex items-center space-x-1.5 border border-violet-200">
+                <span>📚</span>
+                <span>{{ __t('ই-বুক ও অধ্যায়', 'Books & Chapters') }}</span>
+            </a>
             <a href="{{ route('admin.exams.create') }}" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition flex items-center space-x-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>{{ __t('নতুন পরীক্ষা তৈরি', 'Create New Exam') }}</span>
@@ -29,6 +33,10 @@
     <!-- Navigation Tabs Bar -->
     <div class="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-200 text-xs font-bold">
         <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-xs">{{ __t('ড্যাশবোর্ড', 'Dashboard') }}</a>
+        <a href="{{ route('admin.books.index') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition flex items-center space-x-1.5">
+            <span>📚 {{ __t('ডিজিটাল ই-বুক ও পাঠ্যক্রম', 'Digital Books & Topics') }}</span>
+            <span class="px-1.5 py-0.2 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold">{{ $totalBooks ?? 0 }}</span>
+        </a>
         <a href="{{ route('admin.exams.index') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">{{ __t('পরীক্ষা ও মডেল টেস্ট', 'Exams & Mocks') }} ({{ $totalExams }})</a>
         <a href="{{ route('admin.questions.index') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">{{ __t('প্রশ্ন ব্যাংক', 'Question Bank') }} ({{ $totalQuestions }})</a>
         <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition flex items-center space-x-1">
@@ -105,6 +113,45 @@
                     <span class="text-emerald-600 font-bold">✓ {{ __t('সকল রিপোর্ট সমাধানকৃত', 'All Reports Resolved') }}</span>
                 @endif
             </div>
+        </div>
+    </div>
+
+    <!-- Digital Books & Curriculum Feature Banner -->
+    <div class="bg-gradient-to-r from-violet-900 via-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-7 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2 relative z-10 max-w-2xl">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-amber-300 text-xs font-bold border border-white/10">
+                <span>📖</span>
+                <span>বিসিএস ডিজিটাল টেক্সট ই-বুক ও অধ্যায় বিল্ডার</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black text-white">বিষয়ভিত্তিক বই, অধ্যায় ও লিখিত পাঠ্যক্রম পরিচালনা</h2>
+            <p class="text-xs sm:text-sm text-slate-300">
+                বাংলা, ইংরেজি, গণিত, বিজ্ঞান ও সাধারণ জ্ঞানের সম্পূর্ণ টেক্সট-ভিত্তিক ই-বুক ক্যাটালগ। নতুন বই তৈরি করুন, অধ্যায় সাজান এবং বিস্তারিত লিখিত পাঠ / টপিক যুক্ত ও সম্পাদনা করুন।
+            </p>
+            <div class="flex flex-wrap items-center gap-4 pt-1 text-xs font-bold text-slate-300">
+                <span class="flex items-center space-x-1.5 bg-white/10 px-3 py-1.5 rounded-xl">
+                    <span class="text-amber-400 font-black text-sm">{{ $totalBooks ?? 0 }}</span>
+                    <span>টি বিষয়ভিত্তিক বই</span>
+                </span>
+                <span class="flex items-center space-x-1.5 bg-white/10 px-3 py-1.5 rounded-xl">
+                    <span class="text-emerald-400 font-black text-sm">{{ $totalChapters ?? 0 }}</span>
+                    <span>টি অধ্যায়</span>
+                </span>
+                <span class="flex items-center space-x-1.5 bg-white/10 px-3 py-1.5 rounded-xl">
+                    <span class="text-indigo-300 font-black text-sm">{{ $totalTopics ?? 0 }}</span>
+                    <span>টি লিখিত পাঠ / টপিক</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 relative z-10">
+            <a href="{{ route('admin.books.index') }}" class="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition shadow-sm flex items-center space-x-2">
+                <span>📚 বই ও কন্টেন্ট ম্যানেজার</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+            <a href="{{ route('admin.books.create') }}" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition border border-white/20 flex items-center space-x-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>নতুন বই তৈরি</span>
+            </a>
         </div>
     </div>
 

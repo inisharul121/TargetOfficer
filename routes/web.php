@@ -146,6 +146,26 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::put('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.role');
 
+        // Digital Books & Topics Management Suite
+        Route::get('/books', [\App\Http\Controllers\Admin\AdminBookController::class, 'index'])->name('books.index');
+        Route::get('/books/create', [\App\Http\Controllers\Admin\AdminBookController::class, 'create'])->name('books.create');
+        Route::post('/books', [\App\Http\Controllers\Admin\AdminBookController::class, 'store'])->name('books.store');
+        Route::get('/books/{book}/edit', [\App\Http\Controllers\Admin\AdminBookController::class, 'edit'])->name('books.edit');
+        Route::put('/books/{book}', [\App\Http\Controllers\Admin\AdminBookController::class, 'update'])->name('books.update');
+        Route::delete('/books/{book}', [\App\Http\Controllers\Admin\AdminBookController::class, 'destroy'])->name('books.destroy');
+        Route::get('/books/{book}/builder', [\App\Http\Controllers\Admin\AdminBookController::class, 'builder'])->name('books.builder');
+
+        // Book Chapters
+        Route::post('/books/{book}/chapters', [\App\Http\Controllers\Admin\AdminBookController::class, 'storeChapter'])->name('books.chapters.store');
+        Route::put('/chapters/{chapter}', [\App\Http\Controllers\Admin\AdminBookController::class, 'updateChapter'])->name('books.chapters.update');
+        Route::delete('/chapters/{chapter}', [\App\Http\Controllers\Admin\AdminBookController::class, 'destroyChapter'])->name('books.chapters.destroy');
+
+        // Book Topics / Written Contents
+        Route::post('/chapters/{chapter}/topics', [\App\Http\Controllers\Admin\AdminBookController::class, 'storeTopic'])->name('books.topics.store');
+        Route::get('/topics/{topic}/edit', [\App\Http\Controllers\Admin\AdminBookController::class, 'editTopic'])->name('books.topics.edit');
+        Route::put('/topics/{topic}', [\App\Http\Controllers\Admin\AdminBookController::class, 'updateTopic'])->name('books.topics.update');
+        Route::delete('/topics/{topic}', [\App\Http\Controllers\Admin\AdminBookController::class, 'destroyTopic'])->name('books.topics.destroy');
+
         // Analytics & Question Calibration
         Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
     });
