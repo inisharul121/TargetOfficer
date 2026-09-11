@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             Bcs15thSeeder::class,
             Bcs16thSeeder::class,
             Bcs17thSeeder::class,
+            Bcs23rdSeeder::class,
             QuestionExplanationSeeder::class,
             LiveExamSeeder::class,
             StudyRoutineSeeder::class,
