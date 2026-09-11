@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             Bcs11thSeeder::class,
             Bcs12thSeeder::class,
             Bcs13thSeeder::class,
+            Bcs14thSeeder::class,
             QuestionExplanationSeeder::class,
             LiveExamSeeder::class,
             StudyRoutineSeeder::class,
