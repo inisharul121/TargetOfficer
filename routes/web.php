@@ -84,6 +84,12 @@ Route::middleware('auth')->group(function () {
     // Daily & Monthly Current Affairs GK Feed
     Route::get('/current-affairs', [\App\Http\Controllers\CurrentAffairsController::class, 'index'])->name('current-affairs.index');
 
+    // Digital Books Engine (MCQ + Written)
+    Route::get('/books', [\App\Http\Controllers\BookController::class, 'index'])->name('books.index');
+    Route::get('/books/{slug}', [\App\Http\Controllers\BookController::class, 'show'])->name('books.show');
+    Route::get('/books/{slug}/chapter/{chapterNumber?}', [\App\Http\Controllers\BookController::class, 'read'])->name('books.read');
+    Route::get('/books/{slug}/chapter/{chapterNumber}/export', [\App\Http\Controllers\BookController::class, 'exportChapter'])->name('books.export');
+
     // PDF / Print Question Paper Generator
     Route::get('/export/exam/{exam}', [\App\Http\Controllers\PdfExportController::class, 'exportExam'])->name('export.exam');
     Route::get('/export/question-bank', [\App\Http\Controllers\PdfExportController::class, 'exportQuestionBank'])->name('export.question-bank');

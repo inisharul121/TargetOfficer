@@ -98,9 +98,52 @@
     </div>
 
     {{-- ================================================================ --}}
+    {{-- 2.4 TOPIC-BASED DIGITAL BOOKS BANNER (MCQ & WRITTEN)            --}}
+    {{-- ================================================================ --}}
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 p-6 sm:p-7 text-white shadow-lg border border-indigo-700/50">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div class="space-y-2 max-w-2xl">
+                <div class="inline-flex items-center space-x-2 bg-indigo-500/30 border border-indigo-400/30 px-3 py-1 rounded-full text-xs font-bold text-indigo-200">
+                    <span>📚 নতুন ফিচার</span>
+                    <span>•</span>
+                    <span>প্রিলিমিনারি MCQ + লিখিত (Written) মডেল উত্তর</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">
+                    বিষয়ভিত্তিক বিসিএস ডিজিটাল ই-বুক লাইব্রেরি
+                </h2>
+                <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed">
+                    ১০ম ও ১১তম বিসিএস সহ বিগত সকল প্রিলিমিনারি প্রশ্ন এবং লিখিত পরীক্ষার টপিকভিত্তিক হ্যান্ডনোট ও মডেল সমাধান এখন বিষয়ভিত্তিক ই-বুক আকারে প্রস্তুত।
+                </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="{{ route('books.index') }}"
+                   class="px-5 py-3 rounded-2xl bg-white text-indigo-900 font-black text-xs sm:text-sm shadow-md hover:bg-indigo-50 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
+                    <span>বইয়ের তালিকায় যান</span>
+                    <span>→</span>
+                </a>
+            </div>
+        </div>
+        <div class="absolute -right-8 -bottom-10 opacity-10 text-9xl pointer-events-none select-none">
+            📖
+        </div>
+    </div>
+
+    {{-- ================================================================ --}}
     {{-- 2.5 SPECIAL FEATURE HUB (LIVE EXAM, ROUTINE, DUEL, FLASHCARDS)  --}}
     {{-- ================================================================ --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        {{-- Books Quick Tile --}}
+        <a href="{{ route('books.index') }}"
+           class="p-4 rounded-3xl bg-gradient-to-br from-indigo-50 to-indigo-100/60 dark:from-slate-900 dark:to-indigo-950/30 border border-indigo-200 dark:border-indigo-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl">📚</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-indigo-600 text-white">বই</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition">বিষয়ভিত্তিক ই-বুক</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">MCQ + লিখিত গাইড</p>
+            </div>
+        </a>
         {{-- Live Exam Tile --}}
         <a href="{{ route('live-exams.index') }}"
            class="p-4 rounded-3xl bg-gradient-to-br from-rose-50 to-rose-100/60 dark:from-slate-900 dark:to-rose-950/30 border border-rose-200 dark:border-rose-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3">

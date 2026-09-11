@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             StudyRoutineSeeder::class,
             FlashcardSeeder::class,
             CurrentAffairsSeeder::class,
+            DigitalBookSeeder::class,
         ]);
     }
 }
