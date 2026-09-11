@@ -117,7 +117,7 @@ class TargetOfficerPlatformTest extends TestCase
 
     public function test_exams_index_and_show_pages(): void
     {
-        $exam = Exam::first();
+        $exam = Exam::latest()->first();
 
         $indexRes = $this->get(route('exams.index'));
         $indexRes->assertStatus(200);
