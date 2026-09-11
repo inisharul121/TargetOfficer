@@ -61,6 +61,33 @@ Route::middleware('auth')->group(function () {
     Route::post('/student/mistakes/retake', [\App\Http\Controllers\StudentAnalyticsController::class, 'retakeMistakes'])->name('student.mistakes.retake');
     Route::get('/student/bookmarks', [\App\Http\Controllers\StudentAnalyticsController::class, 'bookmarks'])->name('student.bookmarks');
 
+    // Live Model Test & Merit List
+    Route::get('/live-exams', [\App\Http\Controllers\LiveExamController::class, 'index'])->name('live-exams.index');
+    Route::get('/live-exams/{exam:slug}/leaderboard', [\App\Http\Controllers\LiveExamController::class, 'leaderboard'])->name('live-exams.leaderboard');
+
+    // Weekly Study Routine & Syllabus Tracker
+    Route::get('/routine', [\App\Http\Controllers\StudyRoutineController::class, 'index'])->name('routine.index');
+    Route::post('/routine/{routine}/toggle', [\App\Http\Controllers\StudyRoutineController::class, 'toggle'])->name('routine.toggle');
+
+    // 1v1 Quiz Duel Battle
+    Route::get('/battle', [\App\Http\Controllers\QuizDuelController::class, 'index'])->name('battle.index');
+    Route::post('/battle', [\App\Http\Controllers\QuizDuelController::class, 'store'])->name('battle.store');
+    Route::post('/battle/join', [\App\Http\Controllers\QuizDuelController::class, 'join'])->name('battle.join');
+    Route::get('/battle/{code}', [\App\Http\Controllers\QuizDuelController::class, 'arena'])->name('battle.arena');
+    Route::post('/battle/{code}/submit', [\App\Http\Controllers\QuizDuelController::class, 'submit'])->name('battle.submit');
+    Route::get('/battle/{code}/result', [\App\Http\Controllers\QuizDuelController::class, 'result'])->name('battle.result');
+
+    // High-Yield Spaced Repetition Flashcards
+    Route::get('/flashcards', [\App\Http\Controllers\FlashcardController::class, 'index'])->name('flashcards.index');
+    Route::post('/flashcards/{flashcard}/rate', [\App\Http\Controllers\FlashcardController::class, 'rate'])->name('flashcards.rate');
+
+    // Daily & Monthly Current Affairs GK Feed
+    Route::get('/current-affairs', [\App\Http\Controllers\CurrentAffairsController::class, 'index'])->name('current-affairs.index');
+
+    // PDF / Print Question Paper Generator
+    Route::get('/export/exam/{exam}', [\App\Http\Controllers\PdfExportController::class, 'exportExam'])->name('export.exam');
+    Route::get('/export/question-bank', [\App\Http\Controllers\PdfExportController::class, 'exportQuestionBank'])->name('export.question-bank');
+
     // Bookmarks, Reports & Discussion Threads
     Route::post('/questions/{question}/bookmark', [QuestionBankController::class, 'toggleBookmark'])->name('questions.bookmark');
     Route::post('/questions/{question}/report', [QuestionBankController::class, 'reportQuestion'])->name('questions.report');

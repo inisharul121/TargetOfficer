@@ -38,11 +38,14 @@ class QuestionBankController extends Controller
         }
 
         if ($request->filled('q')) {
-            $term = '%' . $request->q . '%';
-            $query->where(function ($sq) use ($term) {
-                $sq->where('stem_bn', 'like', $term)
-                   ->orWhere('stem_en', 'like', $term)
-                   ->orWhere('explanation_bn', 'like', $term);
+            $terms = \App\Helpers\BanglaPhoneticHelper::getSearchTerms($request->q);
+            $query->where(function ($sq) use ($terms) {
+                foreach ($terms as $t) {
+                    $pattern = '%' . $t . '%';
+                    $sq->orWhere('stem_bn', 'like', $pattern)
+                       ->orWhere('stem_en', 'like', $pattern)
+                       ->orWhere('explanation_bn', 'like', $pattern);
+                }
             });
         }
 

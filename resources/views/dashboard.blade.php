@@ -98,6 +98,76 @@
     </div>
 
     {{-- ================================================================ --}}
+    {{-- 2.5 SPECIAL FEATURE HUB (LIVE EXAM, ROUTINE, DUEL, FLASHCARDS)  --}}
+    {{-- ================================================================ --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {{-- Live Exam Tile --}}
+        <a href="{{ route('live-exams.index') }}"
+           class="p-4 rounded-3xl bg-gradient-to-br from-rose-50 to-rose-100/60 dark:from-slate-900 dark:to-rose-950/30 border border-rose-200 dark:border-rose-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl">🔴</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-600 text-white animate-pulse">LIVE</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-rose-600 transition">লাইভ মডেল টেস্ট</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">জাতীয় মেধা তালিকা</p>
+            </div>
+        </a>
+
+        {{-- 1v1 Battle Tile --}}
+        <a href="{{ route('battle.index') }}"
+           class="p-4 rounded-3xl bg-gradient-to-br from-orange-50 to-orange-100/60 dark:from-slate-900 dark:to-orange-950/30 border border-orange-200 dark:border-orange-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl">⚔️</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-orange-500 text-white">NEW</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-orange-600 transition">১ বনাম ১ ব্যাটেল</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">কুইজ চ্যালেঞ্জ ও কয়েন</p>
+            </div>
+        </a>
+
+        {{-- Study Routine Tile --}}
+        <a href="{{ route('routine.index') }}"
+           class="p-4 rounded-3xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 dark:from-slate-900 dark:to-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl">📅</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-600 text-white">রুটিন</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition">স্টাডি রুটিন</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">দৈনিক সিলেবাস চেকমার্ক</p>
+            </div>
+        </a>
+
+        {{-- Flashcards Tile --}}
+        <a href="{{ route('flashcards.index') }}"
+           class="p-4 rounded-3xl bg-gradient-to-br from-purple-50 to-purple-100/60 dark:from-slate-900 dark:to-purple-950/30 border border-purple-200 dark:border-purple-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl">🧠</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-purple-600 text-white">মুখস্থ</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-purple-600 transition">স্মার্ট ফ্ল্যাশ কার্ড</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">সংবিধান ও শব্দভাণ্ডার</p>
+            </div>
+        </a>
+
+        {{-- Current Affairs Tile --}}
+        <a href="{{ route('current-affairs.index') }}"
+           class="p-4 rounded-3xl bg-gradient-to-br from-blue-50 to-blue-100/60 dark:from-slate-900 dark:to-blue-950/30 border border-blue-200 dark:border-blue-900/40 hover:shadow-md transition group flex flex-col justify-between space-y-3 col-span-2 sm:col-span-1">
+            <div class="flex items-center justify-between">
+                <span class="text-2xl">📰</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-600 text-white">দৈনিক</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-600 transition">সাম্প্রতিক তথ্য (GK)</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">মাসিক ও দৈনিক ক্যাপসুল</p>
+            </div>
+        </a>
+    </div>
+
+    {{-- ================================================================ --}}
     {{-- 3. EXAM TAKER (SETTER) BREAKDOWN (BPSC, BUET, IBA)              --}}
     {{-- ================================================================ --}}
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">

@@ -32,15 +32,19 @@
                     </div>
                 </div>
 
-                <!-- View Mode Toggle (Single Card vs Full Paper) -->
+                <!-- View Mode Toggle (Single Card vs Full Paper vs Authentic OMR) -->
                 <div class="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
                     <button type="button" @click="viewMode = 'single'" :class="viewMode === 'single' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <span>কার্ড ভিউ</span>
+                        <span>কার্ড</span>
                     </button>
                     <button type="button" @click="viewMode = 'paper'" :class="viewMode === 'paper' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                        <span>পেপার ভিউ</span>
+                        <span>পেপার</span>
+                    </button>
+                    <button type="button" @click="viewMode = 'omr'" :class="viewMode === 'omr' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'" class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
+                        <span class="w-2.5 h-2.5 rounded-full border-2 border-current"></span>
+                        <span>⭕ ওএমআর</span>
                     </button>
                 </div>
             </div>
@@ -205,6 +209,48 @@
                             </div>
                         </div>
                     @endforeach
+                </div>
+
+                <!-- 3. AUTHENTIC OMR BUBBLE SHEET VIEW -->
+                <div x-show="viewMode === 'omr'" class="space-y-6">
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-6">
+                        <div class="border-b-2 border-slate-800 pb-4 text-center space-y-1">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">বাংলাদেশ সরকারি কর্ম কমিশন (BPSC) স্টাইল</span>
+                            <h2 class="text-base sm:text-lg font-black text-slate-900">ডিজিটাল ওএমআর উত্তরপত্র (OMR Answer Sheet)</h2>
+                            <p class="text-[11px] text-slate-500 font-semibold">
+                                প্রশ্নের সঠিক বৃত্তটি কালো বলপেন দিয়ে ভরাট করার বাস্তব অভিজ্ঞতা। বৃত্তে ক্লিক করে উত্তর নির্বাচন করুন।
+                            </p>
+                        </div>
+
+                        {{-- OMR Bubble Rows in 2 Columns --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                            @foreach($questions as $index => $q)
+                                <div class="flex items-center justify-between p-2.5 rounded-2xl border border-slate-100 hover:bg-slate-50 transition"
+                                     :class="answers[{{ $q->id }}] ? 'bg-indigo-50/50 border-indigo-200 ring-1 ring-indigo-500/20' : ''">
+                                    <div class="flex items-center space-x-2 min-w-[70px]">
+                                        <span class="font-black text-xs text-slate-900 w-6 text-right">{{ $index + 1 }}.</span>
+                                        <span class="text-[11px] text-slate-500 truncate max-w-[100px] font-medium" title="{{ $q->stem_bn }}">{{ Str::limit($q->stem_bn, 15) }}</span>
+                                    </div>
+
+                                    <div class="flex items-center space-x-2">
+                                        @foreach($q->options as $optIdx => $opt)
+                                            @php
+                                                $letter = ['ক', 'খ', 'গ', 'ঘ'][$optIdx] ?? ($optIdx + 1);
+                                            @endphp
+                                            <button type="button"
+                                                    @click="selectAnswer({{ $q->id }}, {{ $opt->id }})"
+                                                    :class="answers[{{ $q->id }}] == {{ $opt->id }} 
+                                                        ? 'bg-slate-900 text-white font-black scale-105 border-slate-900 shadow-sm' 
+                                                        : 'bg-white text-slate-600 border-slate-300 hover:border-slate-500 hover:bg-slate-100'"
+                                                    class="w-7 h-7 rounded-full border-2 text-[11px] font-bold flex items-center justify-center transition-all cursor-pointer">
+                                                {{ $letter }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
 

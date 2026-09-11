@@ -15,6 +15,10 @@ class DatabaseSeeder extends Seeder
             Bcs10thSeeder::class,
             Bcs11thSeeder::class,
             QuestionExplanationSeeder::class,
+            LiveExamSeeder::class,
+            StudyRoutineSeeder::class,
+            FlashcardSeeder::class,
+            CurrentAffairsSeeder::class,
         ]);
     }
 }

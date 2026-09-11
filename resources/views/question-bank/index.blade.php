@@ -9,10 +9,18 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">প্রশ্ন ব্যাংক ও প্রশ্নকর্তা প্যাটার্ন আর্কাইভ</h1>
-                <p class="text-xs sm:text-sm text-slate-500 mt-1">বিসিএস, বাংলাদেশ ব্যাংক, বুয়েট ও আইবিএ প্রশ্ন প্যাটার্নের বিস্তারিত কালেকশন।</p>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">বিসিএস, বাংলাদেশ ব্যাংক, বুয়েট ও আইবিএ প্রশ্ন প্যাটার্নের বিস্তারিত কালেকশন (স্মার্ট ফোনেটিক সার্চ সমর্থিত)।</p>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('export.question-bank', request()->all()) }}"
+                   class="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-xs transition flex items-center space-x-1.5">
+                    <span>🖨️</span>
+                    <span>প্রশ্নপত্র প্রিন্ট / PDF</span>
+                </a>
             </div>
         </div>
 
@@ -20,7 +28,7 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
             <form method="GET" action="{{ route('question-bank.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                 <div>
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="প্রশ্ন বা ব্যাখ্যা দিয়ে খুঁজুন..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="প্রশ্ন বা ফোনেটিক সার্চ (e.g. charyapad, সংবিধান)..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none">
                 </div>
 
                 <div>
