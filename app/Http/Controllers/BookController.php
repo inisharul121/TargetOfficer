@@ -15,7 +15,7 @@ class BookController extends Controller
     {
         $books = Book::where('is_published', true)
             ->with(['subject', 'chapters' => function ($q) {
-                $q->withCount(['questions', 'writtenContents']);
+                $q->withCount('writtenContents')->orderBy('chapter_number');
             }])
             ->orderBy('order')
             ->get();
@@ -30,7 +30,7 @@ class BookController extends Controller
     {
         $book = Book::where('slug', $slug)
             ->with(['subject', 'chapters' => function ($q) {
-                $q->withCount(['questions', 'writtenContents'])->orderBy('chapter_number');
+                $q->withCount('writtenContents')->orderBy('chapter_number');
             }])
             ->firstOrFail();
 
@@ -38,13 +38,13 @@ class BookController extends Controller
     }
 
     /**
-     * Interactive Smart Book Reader (MCQ + Written dual tabs).
+     * Interactive Text-Based Digital Book Reader.
      */
     public function read(Request $request, string $slug, int $chapterNumber = 1)
     {
         $book = Book::where('slug', $slug)
             ->with(['subject', 'chapters' => function ($q) {
-                $q->withCount(['questions', 'writtenContents'])->orderBy('chapter_number');
+                $q->withCount('writtenContents')->orderBy('chapter_number');
             }])
             ->firstOrFail();
 
@@ -55,33 +55,33 @@ class BookController extends Controller
             return redirect()->route('books.index')->with('error', 'এই বইটিতে এখনও কোনো অধ্যায় যুক্ত করা হয়নি।');
         }
 
-        // Fetch questions with options and exam tags
-        $questions = $activeChapter->questions()
-            ->with(['options', 'tags', 'exams.examYear'])
-            ->get();
-
-        // Fetch written materials
+        // Fetch text-based book contents (theories, rules, model answers, analysis)
         $writtenContents = $activeChapter->writtenContents()
             ->orderBy('order')
             ->get();
 
-        // Active tab mode: 'mcq' or 'written'
-        $activeTab = $request->query('tab', 'mcq');
-        if (!in_array($activeTab, ['mcq', 'written'])) {
-            $activeTab = 'mcq';
-        }
+        // Previous and Next Chapters for seamless book reading
+        $previousChapter = $book->chapters
+            ->where('chapter_number', '<', $activeChapter->chapter_number)
+            ->sortByDesc('chapter_number')
+            ->first();
+
+        $nextChapter = $book->chapters
+            ->where('chapter_number', '>', $activeChapter->chapter_number)
+            ->sortBy('chapter_number')
+            ->first();
 
         return view('books.read', compact(
             'book',
             'activeChapter',
-            'questions',
             'writtenContents',
-            'activeTab'
+            'previousChapter',
+            'nextChapter'
         ));
     }
 
     /**
-     * Export / Print a specific Book Chapter with MCQ and Written materials.
+     * Export / Print a specific Book Chapter as a study booklet.
      */
     public function exportChapter(Request $request, string $slug, int $chapterNumber)
     {
@@ -90,16 +90,12 @@ class BookController extends Controller
             ->where('chapter_number', $chapterNumber)
             ->firstOrFail();
 
-        $mode = $request->query('mode', 'all'); // 'all', 'mcq', 'written'
-        $questions = $chapter->questions()->with(['options', 'tags'])->get();
         $writtenContents = $chapter->writtenContents()->orderBy('order')->get();
 
         return view('export.pdf-book-chapter', compact(
             'book',
             'chapter',
-            'questions',
-            'writtenContents',
-            'mode'
+            'writtenContents'
         ));
     }
 }

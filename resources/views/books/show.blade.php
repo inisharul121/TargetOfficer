@@ -60,9 +60,11 @@
                                 {{ $ch->summary_bn }}
                             </p>
                             <div class="flex items-center space-x-3 text-[11px] pt-1">
-                                <span class="text-indigo-600 dark:text-indigo-400 font-bold">🎯 {{ $ch->questions_count }}টি MCQ প্রশ্ন</span>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-bold">📚 {{ $ch->written_contents_count }}টি বিশদ পাঠ ও টপিক</span>
                                 <span class="text-slate-300 dark:text-slate-600">•</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-bold">✍️ {{ $ch->written_contents_count }}টি লিখিত বিষয়</span>
+                                <span class="text-emerald-600 dark:text-emerald-400 font-bold">⏱️ ~৮ মিনিট পাঠ</span>
+                                <span class="text-slate-300 dark:text-slate-600">•</span>
+                                <span class="text-purple-600 dark:text-purple-400 font-bold">🏛️ পূর্ণাঙ্গ থিওরি ও লিখিত গাইড</span>
                             </div>
                         </div>
                     </div>

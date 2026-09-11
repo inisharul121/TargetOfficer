@@ -1,102 +1,177 @@
 @extends('layouts.student-layout')
 
-@section('title', $activeChapter->title_bn . ' – ' . $book->title_bn)
+@section('title', $activeChapter->title_bn . ' – ' . $book->title_bn . ' – TargetOfficer ই-বুক')
 
 @section('content')
-<div class="space-y-6 max-w-7xl mx-auto" 
-     x-data="{ 
-         tocOpen: false, 
-         activeTab: '{{ $activeTab }}', 
-         fontSize: 15,
-         revealedAnswers: {}
-     }">
-    
-    {{-- Top Book Navigation & Reading Controls Bar --}}
-    <div class="sticky top-16 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center space-x-3 min-w-0">
-            <a href="{{ route('books.show', $book->slug) }}" 
-               class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 shrink-0 transition"
-               title="সূচিপত্রে ফিরুন">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            </a>
+<div x-data="{
+        fontSize: localStorage.getItem('ebook_font_size') || 'text-base',
+        readingTheme: localStorage.getItem('ebook_theme') || 'theme-light',
+        tocOpen: false,
+        scrollProgress: 0,
+        updateProgress() {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            this.scrollProgress = height > 0 ? Math.min(100, Math.round((winScroll / height) * 100)) : 0;
+        },
+        setFont(size) {
+            this.fontSize = size;
+            localStorage.setItem('ebook_font_size', size);
+        },
+        setTheme(theme) {
+            this.readingTheme = theme;
+            localStorage.setItem('ebook_theme', theme);
+        }
+    }" 
+    x-init="window.addEventListener('scroll', () => updateProgress()); updateProgress();"
+    class="max-w-7xl mx-auto space-y-6">
 
-            <div class="min-w-0">
-                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block truncate">
-                    {{ $book->title_bn }}
-                </span>
-                <h1 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
-                    {{ $activeChapter->title_bn }}
-                </h1>
+    {{-- Top Reading Progress Bar (Fixed on top) --}}
+    <div class="fixed top-0 left-0 right-0 z-50 h-1 bg-slate-200 dark:bg-slate-800">
+        <div class="h-full bg-indigo-600 transition-all duration-150" :style="`width: ${scrollProgress}%`"></div>
+    </div>
+
+    {{-- Top Action & Reading Controls Toolbar --}}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        {{-- Breadcrumb & Back --}}
+        <div class="flex items-center space-x-3">
+            <a href="{{ route('books.show', $book->slug) }}"
+               class="px-3.5 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition flex items-center space-x-1">
+                <span>←</span>
+                <span class="hidden sm:inline">সূচিপত্রে ফিরে যান</span>
+            </a>
+            <div class="text-xs">
+                <span class="text-slate-400 font-medium">{{ $book->title_bn }} / </span>
+                <span class="font-bold text-slate-800 dark:text-slate-200">{{ $activeChapter->title_bn }}</span>
             </div>
         </div>
 
-        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            {{-- Font Size Controls --}}
-            <div class="hidden sm:flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
-                <button type="button" @click="fontSize = Math.max(13, fontSize - 1)" class="px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition" title="ফন্ট ছোট করুন">
-                    A-
+        {{-- Reader Customization Tools (Font Scaling + Themes) --}}
+        <div class="flex items-center space-x-3">
+            
+            {{-- Reading Theme Picker --}}
+            <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                <button type="button" 
+                        @click="setTheme('theme-light')"
+                        :class="readingTheme === 'theme-light' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'"
+                        class="px-2.5 py-1 rounded-xl transition flex items-center space-x-1"
+                        title="দিন / স্বাভাবিক মোড">
+                    <span>☀️</span>
+                    <span class="hidden md:inline text-[11px]">লাইট</span>
                 </button>
-                <span class="text-[10px] font-mono text-slate-400 px-1" x-text="fontSize + 'px'">15px</span>
-                <button type="button" @click="fontSize = Math.min(22, fontSize + 1)" class="px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition" title="ফন্ট বড় করুন">
-                    A+
+                <button type="button" 
+                        @click="setTheme('theme-sepia')"
+                        :class="readingTheme === 'theme-sepia' ? 'bg-[#f4ebd0] text-[#433422] shadow-xs' : 'text-slate-500 hover:text-slate-900'"
+                        class="px-2.5 py-1 rounded-xl transition flex items-center space-x-1"
+                        title="বই পড়ার আরামদায়ক সেপিয়া মোড">
+                    <span>📖</span>
+                    <span class="hidden md:inline text-[11px]">সেপিয়া</span>
+                </button>
+                <button type="button" 
+                        @click="setTheme('theme-dark')"
+                        :class="readingTheme === 'theme-dark' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-300'"
+                        class="px-2.5 py-1 rounded-xl transition flex items-center space-x-1"
+                        title="রাতের ডার্ক মোড">
+                    <span>🌙</span>
+                    <span class="hidden md:inline text-[11px]">ডার্ক</span>
                 </button>
             </div>
 
-            {{-- PDF Chapter Export --}}
+            {{-- Font Sizing Buttons --}}
+            <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-black">
+                <button type="button" 
+                        @click="setFont('text-sm')"
+                        :class="fontSize === 'text-sm' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                        class="px-2.5 py-1 rounded-xl transition"
+                        title="ছোট ফন্ট (Small)">
+                    A-
+                </button>
+                <button type="button" 
+                        @click="setFont('text-base')"
+                        :class="fontSize === 'text-base' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                        class="px-2.5 py-1 rounded-xl transition"
+                        title="স্বাভাবিক ফন্ট (Medium)">
+                    A
+                </button>
+                <button type="button" 
+                        @click="setFont('text-lg')"
+                        :class="fontSize === 'text-lg' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                        class="px-2.5 py-1 rounded-xl transition"
+                        title="বড় ফন্ট (Large)">
+                    A+
+                </button>
+                <button type="button" 
+                        @click="setFont('text-xl')"
+                        :class="fontSize === 'text-xl' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                        class="px-2.5 py-1 rounded-xl transition"
+                        title="খুব বড় ফন্ট (Extra Large)">
+                    A++
+                </button>
+            </div>
+
+            {{-- PDF / Print Button --}}
             <a href="{{ route('books.export', [$book->slug, $activeChapter->chapter_number]) }}"
                target="_blank"
-               class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition flex items-center space-x-1.5"
-               title="অধ্যায়টি প্রিন্ট বা PDF ডাউনলোড">
+               class="px-3.5 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition flex items-center space-x-1.5"
+               title="অধ্যায় প্রিন্ট অথবা অফলাইন PDF সংরক্ষণ">
                 <span>🖨️</span>
                 <span class="hidden sm:inline">প্রিন্ট / PDF</span>
             </a>
 
-            {{-- Mobile TOC Toggle Button --}}
-            <button type="button" 
-                    @click="tocOpen = !tocOpen"
-                    class="lg:hidden px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center space-x-1">
-                <span>📑</span>
-                <span>সূচিপত্র</span>
+            {{-- Mobile Drawer TOC Button --}}
+            <button type="button"
+                    @click="tocOpen = true"
+                    class="lg:hidden p-2 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    title="সূচিপত্র খুলুন">
+                📑
             </button>
         </div>
     </div>
 
-    {{-- Main Reader Layout: Left TOC + Center Reading Pane --}}
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        
-        {{-- Left: Desktop Persistent Table of Contents --}}
-        <aside class="hidden lg:block lg:col-span-1 bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs sticky top-36 space-y-4 max-h-[calc(100vh-160px)] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                <h2 class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center space-x-2">
-                    <span>📑</span>
-                    <span>সূচিপত্র (Chapters)</span>
-                </h2>
-                <span class="text-[10px] font-bold text-slate-400">{{ $book->chapters->count() }}টি অধ্যায়</span>
-            </div>
+    {{-- Main Reading Grid Layout --}}
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-            <nav class="space-y-1.5">
-                @foreach($book->chapters as $ch)
-                    @php
-                        $isActive = $ch->id === $activeChapter->id;
-                    @endphp
-                    <a href="{{ route('books.read', [$book->slug, $ch->chapter_number, 'tab' => request('tab', 'mcq')]) }}"
-                       class="block p-3 rounded-2xl text-xs font-bold transition {{ $isActive 
-                            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' 
-                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
-                        <div class="flex items-start space-x-2">
-                            <span class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 text-[10px] {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500' }}">
-                                {{ $ch->chapter_number }}
-                            </span>
-                            <div class="min-w-0 flex-1">
-                                <span class="truncate block">{{ $ch->title_bn }}</span>
-                                <span class="text-[10px] block opacity-80 mt-0.5">
-                                    🎯 {{ $ch->questions_count }} MCQ • ✍️ {{ $ch->written_contents_count }} লিখিত
+        {{-- Left Sticky Sidebar: Table of Contents --}}
+        <aside class="hidden lg:block lg:col-span-1 space-y-4">
+            <div class="sticky top-24 bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+                {{-- Book Meta --}}
+                <div class="flex items-center space-x-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <span class="text-3xl">{{ $book->icon ?? '📖' }}</span>
+                    <div>
+                        <h3 class="text-xs font-black text-slate-900 dark:text-white leading-tight">
+                            {{ $book->title_bn }}
+                        </h3>
+                        <span class="text-[10px] text-slate-400 font-bold block mt-0.5">
+                            {{ $book->chapters->count() }}টি অধ্যায় • পূর্ণাঙ্গ থিওরি
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Chapters List --}}
+                <div class="space-y-1">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 px-2 block mb-2">
+                        বইয়ের অধ্যায়সমূহ
+                    </span>
+                    <div class="space-y-1 max-h-[65vh] overflow-y-auto pr-1">
+                        @foreach($book->chapters as $ch)
+                            @php
+                                $isActive = $ch->id === $activeChapter->id;
+                            @endphp
+                            <a href="{{ route('books.read', [$book->slug, $ch->chapter_number]) }}"
+                               class="flex items-center justify-between p-2.5 rounded-2xl text-xs font-bold transition group {{ $isActive ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                                <div class="flex items-center space-x-2 min-w-0">
+                                    <span class="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500' }}">
+                                        {{ $ch->chapter_number }}
+                                    </span>
+                                    <span class="truncate">{{ $ch->title_bn }}</span>
+                                </div>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded font-bold shrink-0 ml-1 {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }}">
+                                    {{ $ch->written_contents_count }} পাঠ
                                 </span>
-                            </div>
-                        </div>
-                    </a>
-                @endforeach
-            </nav>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </aside>
 
         {{-- Mobile Drawer Table of Contents --}}
@@ -114,7 +189,7 @@
                         @php
                             $isActive = $ch->id === $activeChapter->id;
                         @endphp
-                        <a href="{{ route('books.read', [$book->slug, $ch->chapter_number, 'tab' => request('tab', 'mcq')]) }}"
+                        <a href="{{ route('books.read', [$book->slug, $ch->chapter_number]) }}"
                            class="block p-3 rounded-2xl text-xs font-bold transition {{ $isActive ? 'bg-indigo-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
                             {{ $ch->title_bn }}
                         </a>
@@ -123,201 +198,170 @@
             </div>
         </div>
 
-        {{-- Right / Center: Reading Pane --}}
+        {{-- Center Reading Container (Book Page Style) --}}
         <main class="lg:col-span-3 space-y-6">
             
-            {{-- Mode Switcher Tabs --}}
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-2 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center">
-                <button type="button"
-                        @click="activeTab = 'mcq'"
-                        :class="activeTab === 'mcq' 
-                            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' 
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-                        class="flex-1 py-3 rounded-2xl text-xs font-black transition flex items-center justify-center space-x-2">
-                    <span>🎯</span>
-                    <span>প্রিলিমিনারি MCQ অংশ ({{ $questions->count() }}টি)</span>
-                </button>
-
-                <button type="button"
-                        @click="activeTab = 'written'"
-                        :class="activeTab === 'written' 
-                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' 
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-                        class="flex-1 py-3 rounded-2xl text-xs font-black transition flex items-center justify-center space-x-2">
-                    <span>✍️</span>
-                    <span>লিখিত প্রস্তুতি ও মডেল উত্তর ({{ $writtenContents->count() }}টি)</span>
-                </button>
-            </div>
-
-            {{-- 1. MCQ MODE SECTION --}}
-            <div x-show="activeTab === 'mcq'" class="space-y-4">
-                <div class="flex items-center justify-between px-1">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">
-                        বিসিএস প্রিলিমিনারি বিগত বছরের প্রশ্নাবলি ও ব্যাখ্যা
-                    </span>
-                    <button type="button" 
-                            @click="revealedAnswers = Object.fromEntries(@json($questions->pluck('id')).map(id => [id, true]))"
-                            class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                        সব উত্তর একসাথে দেখুন
-                    </button>
-                </div>
-
-                @forelse($questions as $index => $q)
-                    @php
-                        $correctOpt = $q->options->firstWhere('is_correct', true);
-                    @endphp
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-                        {{-- Question Header --}}
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-start space-x-3">
-                                <span class="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
-                                    {{ $index + 1 }}
-                                </span>
-                                <h3 class="font-bold text-slate-900 dark:text-white leading-relaxed"
-                                    :style="'font-size: ' + fontSize + 'px'">
-                                    {{ $q->stem_bn }}
-                                </h3>
-                            </div>
-                            
-                            {{-- Source Tags --}}
-                            <div class="flex items-center space-x-1 shrink-0">
-                                @foreach($q->exams as $ex)
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/60">
-                                        {{ $ex->title_bn }}
-                                    </span>
-                                @endforeach
-                            </div>
+            <article :class="{
+                'bg-white text-slate-900 border-slate-200/90': readingTheme === 'theme-light',
+                'bg-[#fcf7ed] text-[#3b2e20] border-[#ecdcc2]': readingTheme === 'theme-sepia',
+                'bg-slate-900 text-slate-100 border-slate-800': readingTheme === 'theme-dark'
+            }" class="rounded-3xl p-6 sm:p-10 border shadow-md transition-colors duration-200 space-y-8">
+                
+                {{-- Chapter Header --}}
+                <header class="border-b pb-6 space-y-3"
+                        :class="readingTheme === 'theme-sepia' ? 'border-[#e4d0b0]' : (readingTheme === 'theme-dark' ? 'border-slate-800' : 'border-slate-100')">
+                    
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/60 dark:bg-indigo-950/60 dark:text-indigo-400 dark:border-indigo-800">
+                            {{ $book->title_bn }} • অধ্যায় {{ $activeChapter->chapter_number }}
+                        </span>
+                        
+                        <div class="flex items-center space-x-3 text-xs text-slate-400">
+                            <span>⏱️ পড়ার সময়: ~৮ মিনিট</span>
+                            <span>•</span>
+                            <span>{{ $writtenContents->count() }}টি টপিক/সেকশন</span>
                         </div>
+                    </div>
 
-                        {{-- Options Grid --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pl-10">
-                            @foreach($q->options as $optIdx => $opt)
-                                @php
-                                    $letter = ['(ক)', '(খ)', '(গ)', '(ঘ)'][$optIdx] ?? ('(' . ($optIdx + 1) . ')');
-                                @endphp
-                                <div class="p-3 rounded-2xl border text-xs font-semibold flex items-center space-x-2 transition"
-                                     :class="revealedAnswers[{{ $q->id }}] 
-                                         ? ('{{ $opt->is_correct }}' ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-900 dark:text-emerald-200 font-bold' : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400')
-                                         : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'">
-                                    <span class="font-bold {{ $opt->is_correct ? 'text-emerald-600' : 'text-slate-400' }}">{{ $letter }}</span>
-                                    <span>{{ $opt->option_text_bn }}</span>
-                                    @if($opt->is_correct)
-                                        <span x-show="revealedAnswers[{{ $q->id }}]" class="text-emerald-600 ml-auto font-black text-xs">✓</span>
-                                    @endif
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                        {{ $activeChapter->title_bn }}
+                    </h1>
+
+                    @if($activeChapter->summary_bn)
+                        <p class="text-sm font-medium leading-relaxed italic opacity-85"
+                           :class="readingTheme === 'theme-sepia' ? 'text-[#6e5841]' : (readingTheme === 'theme-dark' ? 'text-slate-400' : 'text-slate-600')">
+                            "{{ $activeChapter->summary_bn }}"
+                        </p>
+                    @endif
+                </header>
+
+                {{-- Book Text Contents --}}
+                @if($writtenContents->isEmpty())
+                    <div class="text-center py-16 space-y-3">
+                        <span class="text-5xl">✍️</span>
+                        <h3 class="text-base font-bold text-slate-700 dark:text-slate-300">এই অধ্যায়ের টেক্সট কন্টেন্ট দ্রুত যুক্ত করা হচ্ছে</h3>
+                        <p class="text-xs text-slate-400">আমাদের বিশেষজ্ঞ প্যানেল বিসিএস প্রিলিমিনারি ও লিখিত পাঠ্যক্রম অনুযায়ী বইটি হালনাগাদ করছেন।</p>
+                    </div>
+                @else
+                    <div class="space-y-10">
+                        @foreach($writtenContents as $index => $wc)
+                            <section id="section-{{ $wc->id }}" class="space-y-4 pt-4 first:pt-0">
+                                
+                                {{-- Section Title & Metadata Badges --}}
+                                <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b"
+                                     :class="readingTheme === 'theme-sepia' ? 'border-[#ebd9be]' : (readingTheme === 'theme-dark' ? 'border-slate-800' : 'border-slate-100')">
+                                    
+                                    <div class="flex items-center space-x-2.5">
+                                        <span class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <h2 class="text-lg font-black tracking-tight leading-snug">
+                                            {{ $wc->title_bn }}
+                                        </h2>
+                                    </div>
+
+                                    <div class="flex items-center space-x-2 text-xs font-bold">
+                                        @if($wc->marks)
+                                            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-mono">
+                                                মান: {{ (int)$wc->marks }} নম্বর
+                                            </span>
+                                        @endif
+                                        @if($wc->bcs_reference)
+                                            <span class="px-2.5 py-0.5 rounded-lg bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20">
+                                                🏛️ {{ $wc->bcs_reference }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
-                            @endforeach
-                        </div>
 
-                        {{-- Answer & Explanation Trigger --}}
-                        <div class="pl-10 pt-1">
-                            <button type="button"
-                                    @click="revealedAnswers[{{ $q->id }}] = !revealedAnswers[{{ $q->id }}]"
-                                    class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center space-x-1">
-                                <span x-text="revealedAnswers[{{ $q->id }}] ? 'উত্তর ও ব্যাখ্যা লুকান ▲' : '💡 উত্তর ও বিশদ ব্যাখ্যা দেখুন ▼'"></span>
-                            </button>
-
-                            {{-- Explanation Box --}}
-                            <div x-show="revealedAnswers[{{ $q->id }}]"
-                                 x-transition
-                                 class="mt-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-2 text-xs leading-relaxed">
-                                <div class="text-emerald-800 dark:text-emerald-300 font-bold">
-                                    সঠিক উত্তর: {{ $correctOpt ? $correctOpt->option_text_bn : 'নির্ধারিত নয়' }}
-                                </div>
-                                @if($q->explanation_bn)
-                                    <div class="text-slate-700 dark:text-slate-300"
-                                         :style="'font-size: ' + (fontSize - 1) + 'px'">
-                                        {!! $q->explanation_bn !!}
+                                {{-- Question or Focus Prompt if present --}}
+                                @if($wc->question_bn)
+                                    <div class="p-4 rounded-2xl border text-sm font-bold leading-relaxed"
+                                         :class="readingTheme === 'theme-sepia' ? 'bg-[#f5ecda] border-[#e2d0b5] text-[#4a3a29]' : (readingTheme === 'theme-dark' ? 'bg-slate-800/60 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800')">
+                                        <span class="text-xs font-black uppercase tracking-wider block mb-1"
+                                              :class="readingTheme === 'theme-sepia' ? 'text-[#846b4e]' : 'text-indigo-600 dark:text-indigo-400'">
+                                            📌 বিসিএস লিখিত মডেল প্রশ্ন:
+                                        </span>
+                                        {{ $wc->question_bn }}
                                     </div>
                                 @endif
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800 shadow-xs">
-                        <p class="text-slate-400 text-xs font-semibold">এই অধ্যায়ের সাথে সম্পর্কিত প্রিলিমিনারি প্রশ্নাবলি শিগগিরই যুক্ত হচ্ছে।</p>
-                    </div>
-                @endforelse
-            </div>
 
-            {{-- 2. WRITTEN MODE SECTION --}}
-            <div x-show="activeTab === 'written'" class="space-y-4" style="display: none;">
-                <div class="px-1">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">
-                        বিসিএস লিখিত পরীক্ষার মডেল প্রশ্নোত্তর, ব্যকরণ নিয়মাবলী ও প্রমাণ
-                    </span>
+                                {{-- Formatted Body Text --}}
+                                <div class="leading-relaxed space-y-4 font-normal"
+                                     :class="fontSize">
+                                    <div class="ebook-text-body space-y-3"
+                                         :class="readingTheme === 'theme-sepia' ? 'text-[#382b1d]' : (readingTheme === 'theme-dark' ? 'text-slate-200' : 'text-slate-800')">
+                                        {!! $wc->content_bn !!}
+                                    </div>
+                                </div>
+                            </section>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Bottom Navigation Controls --}}
+                <div class="pt-8 border-t flex flex-wrap items-center justify-between gap-4"
+                     :class="readingTheme === 'theme-sepia' ? 'border-[#ebd9be]' : (readingTheme === 'theme-dark' ? 'border-slate-800' : 'border-slate-100')">
+                    
+                    @if($previousChapter)
+                        <a href="{{ route('books.read', [$book->slug, $previousChapter->chapter_number]) }}"
+                           class="px-5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition flex items-center space-x-2">
+                            <span>← পূর্ববর্তী অধ্যায়: {{ $previousChapter->chapter_number }}</span>
+                        </a>
+                    @else
+                        <div></div>
+                    @endif
+
+                    <a href="{{ route('books.show', $book->slug) }}"
+                       class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-600 transition">
+                        সূচিপত্র
+                    </a>
+
+                    @if($nextChapter)
+                        <a href="{{ route('books.read', [$book->slug, $nextChapter->chapter_number]) }}"
+                           class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-md transition flex items-center space-x-2">
+                            <span>পরবর্তী অধ্যায়: {{ $nextChapter->chapter_number }} →</span>
+                        </a>
+                    @endif
                 </div>
 
-                @forelse($writtenContents as $index => $wc)
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-                        {{-- Written Item Header --}}
-                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-                            <div class="flex items-center space-x-2">
-                                <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-                                    {{ $wc->content_type === 'theory_and_rules' ? 'নিয়মাবলী ও সূত্র' : ($wc->content_type === 'math_step_solution' ? 'ধাপসহ গাণিতিক সমাধান' : 'রচনামূলক প্রশ্নোত্তর') }}
-                                </span>
-                                @if($wc->bcs_reference)
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                        {{ $wc->bcs_reference }}
-                                    </span>
-                                @endif
-                            </div>
+            </article>
 
-                            <span class="text-xs font-black text-emerald-600 dark:text-emerald-400">
-                                মান: {{ $wc->marks }} নম্বর
-                            </span>
-                        </div>
-
-                        {{-- Question Stem --}}
-                        @if($wc->question_bn)
-                            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">লিখিত প্রশ্ন:</span>
-                                <h3 class="font-bold text-slate-900 dark:text-white"
-                                    :style="'font-size: ' + fontSize + 'px'">
-                                    {{ $wc->question_bn }}
-                                </h3>
-                            </div>
-                        @else
-                            <h3 class="font-black text-slate-900 dark:text-white text-base">
-                                {{ $wc->title_bn }}
-                            </h3>
-                        @endif
-
-                        {{-- Model Answer / Notes --}}
-                        <div class="pt-2 text-slate-700 dark:text-slate-300 leading-relaxed space-y-3"
-                             :style="'font-size: ' + fontSize + 'px'">
-                            {!! $wc->content_bn !!}
-                        </div>
-                    </div>
-                @empty
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800 shadow-xs">
-                        <p class="text-slate-400 text-xs font-semibold">এই অধ্যায়ের লিখিত মডেল প্রশ্নোত্তর প্রস্তুত হচ্ছে।</p>
-                    </div>
-                @endforelse
-            </div>
-
-            {{-- Prev / Next Chapter Footer Navigation --}}
-            @php
-                $prevChapter = $book->chapters->where('chapter_number', '<', $activeChapter->chapter_number)->last();
-                $nextChapter = $book->chapters->where('chapter_number', '>', $activeChapter->chapter_number)->first();
-            @endphp
-            <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
-                @if($prevChapter)
-                    <a href="{{ route('books.read', [$book->slug, $prevChapter->chapter_number, 'tab' => request('tab', 'mcq')]) }}"
-                       class="px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition flex items-center space-x-2">
-                        <span>← পূর্ববর্তী অধ্যায়: {{ $prevChapter->chapter_number }}</span>
-                    </a>
-                @else
-                    <div></div>
-                @endif
-
-                @if($nextChapter)
-                    <a href="{{ route('books.read', [$book->slug, $nextChapter->chapter_number, 'tab' => request('tab', 'mcq')]) }}"
-                       class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-md transition flex items-center space-x-2">
-                        <span>পরবর্তী অধ্যায়: {{ $nextChapter->chapter_number }} →</span>
-                    </a>
-                @endif
-            </div>
         </main>
     </div>
+
 </div>
+
+<style>
+    /* Rich text reader styling */
+    .ebook-text-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.25rem 0;
+        font-size: 0.9em;
+    }
+    .ebook-text-body th, .ebook-text-body td {
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        padding: 8px 12px;
+        text-align: left;
+    }
+    .ebook-text-body th {
+        background-color: rgba(99, 102, 241, 0.08);
+        font-weight: bold;
+    }
+    .ebook-text-body ul, .ebook-text-body ol {
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .ebook-text-body ul {
+        list-style-type: disc;
+    }
+    .ebook-text-body ol {
+        list-style-type: decimal;
+    }
+    .ebook-text-body strong {
+        font-weight: 700;
+    }
+</style>
 @endsection

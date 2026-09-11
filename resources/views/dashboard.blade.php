@@ -98,21 +98,21 @@
     </div>
 
     {{-- ================================================================ --}}
-    {{-- 2.4 TOPIC-BASED DIGITAL BOOKS BANNER (MCQ & WRITTEN)            --}}
+    {{-- 2.4 TOPIC-BASED DIGITAL BOOKS BANNER (TEXT & WRITTEN)           --}}
     {{-- ================================================================ --}}
     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 p-6 sm:p-7 text-white shadow-lg border border-indigo-700/50">
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
             <div class="space-y-2 max-w-2xl">
                 <div class="inline-flex items-center space-x-2 bg-indigo-500/30 border border-indigo-400/30 px-3 py-1 rounded-full text-xs font-bold text-indigo-200">
-                    <span>📚 নতুন ফিচার</span>
+                    <span>📚 নতুন সংযোজন</span>
                     <span>•</span>
-                    <span>প্রিলিমিনারি MCQ + লিখিত (Written) মডেল উত্তর</span>
+                    <span>বিষয়ভিত্তিক টেক্সটবুক ও থিওরি গাইড</span>
                 </div>
                 <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">
-                    বিষয়ভিত্তিক বিসিএস ডিজিটাল ই-বুক লাইব্রেরি
+                    বিষয়ভিত্তিক বিসিএস ডিজিটাল টেক্সট ই-বুক
                 </h2>
                 <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed">
-                    ১০ম ও ১১তম বিসিএস সহ বিগত সকল প্রিলিমিনারি প্রশ্ন এবং লিখিত পরীক্ষার টপিকভিত্তিক হ্যান্ডনোট ও মডেল সমাধান এখন বিষয়ভিত্তিক ই-বুক আকারে প্রস্তুত।
+                    বিসিএস প্রিলিমিনারি ও লিখিত পরীক্ষার পূর্ণাঙ্গ সিলেবাসভিত্তিক ডিজিটাল টেক্সটবুক। অধ্যায়ভিত্তিক সমৃদ্ধ থিওরি, ব্যাকরণ নিয়মাবলী, ঐতিহাসিক প্রেক্ষাপট ও মডেল সমাধান সরাসরি পড়ুন।
                 </p>
             </div>
             <div class="flex items-center gap-3 shrink-0">
@@ -141,7 +141,7 @@
             </div>
             <div>
                 <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition">বিষয়ভিত্তিক ই-বুক</h3>
-                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">MCQ + লিখিত গাইড</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">থিওরি ও লিখিত গাইড</p>
             </div>
         </a>
         {{-- Live Exam Tile --}}

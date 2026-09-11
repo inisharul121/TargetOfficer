@@ -37,13 +37,13 @@ class DigitalBookTest extends TestCase
         $response = $this->actingAs($this->student)->get(route('books.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('বিসিএস প্রিলিমিনারি ও লিখিত ডিজিটাল বই সমগ্র');
-        $response->assertSee('বিসিএস বাংলা ভাষা ও সাহিত্য');
-        $response->assertSee('বিসিএস ইংরেজি ভাষা ও সাহিত্য');
-        $response->assertSee('বিসিএস বাংলাদেশ বিষয়াবলী');
-        $response->assertSee('বিসিএস আন্তর্জাতিক বিষয়াবলী');
-        $response->assertSee('বিসিএস সাধারণ বিজ্ঞান ও তথ্যপ্রযুক্তি');
-        $response->assertSee('বিসিএস গাণিতিক যুক্তি ও মানসিক দক্ষতা');
+        $response->assertSee('বিসিএস বিষয়ভিত্তিক টেক্সট ই-বুক সমগ্র');
+        $response->assertSee('বিসিএস বাংলা ভাষা ও সাহিত্য সমগ্র');
+        $response->assertSee('বিসিএস ইংরেজি ভাষা ও সাহিত্য সমগ্র');
+        $response->assertSee('বিসিএস বাংলাদেশ বিষয়াবলী সমগ্র');
+        $response->assertSee('বিসিএস আন্তর্জাতিক বিষয়াবলী সমগ্র');
+        $response->assertSee('বিসিএস সাধারণ বিজ্ঞান ও তথ্যপ্রযুক্তি সমগ্র');
+        $response->assertSee('বিসিএস গাণিতিক যুক্তি ও মানসিক দক্ষতা সমগ্র');
     }
 
     public function test_book_show_displays_chapters_and_syllabus_overview(): void
@@ -62,59 +62,47 @@ class DigitalBookTest extends TestCase
         $response->assertSee($firstChapter->title_bn);
     }
 
-    public function test_book_read_view_renders_mcq_and_written_tabs(): void
+    public function test_book_read_view_renders_clean_text_ebook_without_mcq_options(): void
     {
         $book = Book::where('slug', 'book-bcs-bangla')->first();
         $this->assertNotNull($book);
 
-        // Test MCQ tab default
-        $responseMcq = $this->actingAs($this->student)->get(route('books.read', [
+        $response = $this->actingAs($this->student)->get(route('books.read', [
             'slug' => $book->slug,
-            'chapterNumber' => 1,
-            'tab' => 'mcq'
+            'chapterNumber' => 1
         ]));
 
-        $responseMcq->assertStatus(200);
-        $responseMcq->assertSee('প্রিলিমিনারি MCQ অংশ');
-        $responseMcq->assertSee('বিসিএস প্রিলিমিনারি বিগত বছরের প্রশ্নাবলি ও ব্যাখ্যা');
+        $response->assertStatus(200);
+        // Rich text content verified
+        $response->assertSee('অধ্যায় ১: বাংলা ব্যাকরণ, ধ্বনিতত্ত্ব ও বানান রীতি');
+        $response->assertSee('ধ্বনি ও বর্ণের সংজ্ঞা এবং মৌলিক পার্থক্য');
+        $response->assertSee('ণ-ত্ব বিধান ও বাংলা বানানে এর নিয়মাবলী');
+        $response->assertSee('বাংলা একাডেমি প্রমিত বানান রীতির শীর্ষ ৫টি সাধারণ নিয়ম');
 
-        // Test Written tab
-        $responseWritten = $this->actingAs($this->student)->get(route('books.read', [
-            'slug' => $book->slug,
-            'chapterNumber' => 1,
-            'tab' => 'written'
-        ]));
+        // Reading experience features verified
+        $response->assertSee('সেপিয়া');
+        $response->assertSee('বইয়ের অধ্যায়সমূহ');
 
-        $responseWritten->assertStatus(200);
-        $responseWritten->assertSee('লিখিত প্রস্তুতি ও মডেল উত্তর');
+        // Verify it is strictly text-based: No MCQ tab or MCQ options
+        $response->assertDontSee('প্রিলিমিনারি MCQ অংশ');
+        $response->assertDontSee('MCQs');
     }
 
-    public function test_book_chapter_export_printable_views(): void
+    public function test_book_chapter_export_printable_text_booklet(): void
     {
         $book = Book::where('slug', 'book-bcs-english')->first();
         $this->assertNotNull($book);
 
-        // Default export (all)
-        $responseAll = $this->actingAs($this->student)->get(route('books.export', [
+        $response = $this->actingAs($this->student)->get(route('books.export', [
             'slug' => $book->slug,
-            'chapterNumber' => 1,
-            'mode' => 'all'
+            'chapterNumber' => 1
         ]));
 
-        $responseAll->assertStatus(200);
-        $responseAll->assertSee('Digital Book Series');
-        $responseAll->assertSee('পর্ব ১: প্রিলিমিনারি বহুনির্বাচনী প্রশ্ন ও ব্যাখ্যা');
-        $responseAll->assertSee('পর্ব ২: বিসিএস লিখিত মডেল উত্তর ও থিওরি');
-
-        // Written-only export
-        $responseWritten = $this->actingAs($this->student)->get(route('books.export', [
-            'slug' => $book->slug,
-            'chapterNumber' => 1,
-            'mode' => 'written'
-        ]));
-
-        $responseWritten->assertStatus(200);
-        $responseWritten->assertSee('পর্ব ২: বিসিএস লিখিত মডেল উত্তর ও থিওরি');
-        $responseWritten->assertDontSee('পর্ব ১: প্রিলিমিনারি বহুনির্বাচনী প্রশ্ন ও ব্যাখ্যা');
+        $response->assertStatus(200);
+        $response->assertSee('Digital Book Series');
+        $response->assertSee('Chapter 1: Parts of Speech, Clauses & Sentence Structure');
+        $response->assertSee('Clauses: Classification & Identification Rules');
+        $response->assertSee('Subject-Verb Agreement: Master Rules & Exceptions');
+        $response->assertSee('TargetOfficer Digital Book System');
     }
 }

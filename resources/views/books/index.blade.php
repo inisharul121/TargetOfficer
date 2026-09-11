@@ -13,17 +13,17 @@
                     <span>{{ __t('টার্গেট অফিসার বিষয়ভিত্তিক বুক সিরিজ', 'TargetOfficer Digital Book Series') }}</span>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight">
-                    {{ __t('বিসিএস প্রিলিমিনারি ও লিখিত ডিজিটাল বই সমগ্র', 'BCS Preliminary MCQ & Written Master Volumes') }}
+                    {{ __t('বিসিএস বিষয়ভিত্তিক টেক্সট ই-বুক সমগ্র', 'BCS Topic-Based Text eBooks & Master Guides') }}
                 </h1>
                 <p class="text-sm text-indigo-200/90 leading-relaxed">
-                    {{ __t('প্রতিটি বিষয়ের টপিকভিত্তিক সুবিন্যস্ত বই। প্রিলিমিনারি বিগত বছরের নির্ভুল MCQ সমাধান এবং বিসিএস লিখিত পরীক্ষার জন্য সম্পূর্ণ মডেল উত্তর, প্রমাণ, ব্যাকরণ বিধি ও সংক্ষিপ্ত টিকা।', 'Topic-wise structured books for both Preliminary MCQ mastery and Written descriptive exam preparation.') }}
+                    {{ __t('প্রতিটি বিষয়ের অধ্যায়ভিত্তিক সমৃদ্ধ থিওরি, ব্যাকরণ বিধি, ঐতিহাসিক প্রেক্ষাপট, সূত্রাবলী এবং বিসিএস লিখিত পরীক্ষার মডেল প্রশ্নোত্তর। পড়ার উপযোগী পরিচ্ছন্ন টেক্সট ই-বুক।', 'Topic-wise structured text-based books for deep conceptual understanding, theory, and written exam mastery.') }}
                 </p>
             </div>
 
             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 text-center min-w-[200px] shrink-0">
                 <span class="text-[10px] font-black uppercase tracking-wider text-indigo-200 block mb-1">মোট বই কালেকশন</span>
                 <div class="text-3xl font-black text-amber-300">{{ $books->count() }}টি ভলিউম</div>
-                <span class="text-[11px] text-indigo-200 mt-1 block font-semibold">MCQ ও লিখিত সমন্বিত</span>
+                <span class="text-[11px] text-indigo-200 mt-1 block font-semibold">পূর্ণাঙ্গ টেক্সট ও থিওরি</span>
             </div>
         </div>
         <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"></div>
@@ -33,7 +33,6 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($books as $book)
             @php
-                $totalMcqs = $book->chapters->sum('questions_count');
                 $totalWritten = $book->chapters->sum('written_contents_count');
             @endphp
             <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
@@ -69,12 +68,12 @@
                             <span class="text-slate-800 dark:text-slate-200 font-black">{{ $book->chapters->count() }}টি</span>
                         </div>
                         <div>
-                            <span class="block text-[10px] text-slate-400 font-bold uppercase">MCQ প্রশ্ন</span>
-                            <span class="text-indigo-600 dark:text-indigo-400 font-black">{{ $totalMcqs }}টি</span>
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase">টপিক ও পাঠ</span>
+                            <span class="text-indigo-600 dark:text-indigo-400 font-black">{{ $totalWritten }}টি</span>
                         </div>
                         <div>
-                            <span class="block text-[10px] text-slate-400 font-bold uppercase">লিখিত বিষয়</span>
-                            <span class="text-emerald-600 dark:text-emerald-400 font-black">{{ $totalWritten }}টি</span>
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase">পাঠ্যক্রম</span>
+                            <span class="text-emerald-600 dark:text-emerald-400 font-black">থিওরি ও লিখিত</span>
                         </div>
                     </div>
 

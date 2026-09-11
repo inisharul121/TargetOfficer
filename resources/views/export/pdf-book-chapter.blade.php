@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -57,10 +57,6 @@
                 break-inside: avoid;
                 page-break-inside: avoid;
             }
-            .page-break-before {
-                break-before: page;
-                page-break-before: always;
-            }
             @page {
                 size: A4;
                 margin: 12mm 15mm;
@@ -83,33 +79,15 @@
                 ← রিডারে ফিরে যান
             </button>
             <div class="text-xs font-bold text-slate-500">
-                অধ্যায় প্রিন্ট ও অফলাইন স্টাডি শীট
+                অধ্যায় প্রিন্ট ও অফলাইন স্টাডি শীট
             </div>
         </div>
 
-        <div class="flex items-center space-x-2">
-            {{-- Mode Switcher --}}
-            <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
-                <a href="?mode=all"
-                   class="px-3 py-1.5 rounded-lg transition {{ $mode === 'all' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600' }}">
-                    📚 সম্পূর্ণ অধ্যায় (MCQ + লিখিত)
-                </a>
-                <a href="?mode=mcq"
-                   class="px-3 py-1.5 rounded-lg transition {{ $mode === 'mcq' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600' }}">
-                    🎯 শুধু প্রিলিমিনারি (MCQ)
-                </a>
-                <a href="?mode=written"
-                   class="px-3 py-1.5 rounded-lg transition {{ $mode === 'written' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600' }}">
-                    ✍️ শুধু লিখিত মডেল উত্তর
-                </a>
-            </div>
-
-            <button onclick="window.print()"
-                    class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md transition flex items-center space-x-1.5">
-                <span>🖨️</span>
-                <span>প্রিন্ট / PDF সংরক্ষণ</span>
-            </button>
-        </div>
+        <button onclick="window.print()"
+                class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md transition flex items-center space-x-1.5">
+            <span>🖨️</span>
+            <span>প্রিন্ট / PDF সংরক্ষণ</span>
+        </button>
     </div>
 
     {{-- Printable Paper Sheet --}}
@@ -137,146 +115,70 @@
             <div class="flex items-center justify-center space-x-6 text-xs font-bold text-slate-600 pt-3 border-t border-slate-200 mt-3">
                 <span>বিষয়: {{ $book->subject ? $book->subject->name_bn : 'সাধারণ জ্ঞান' }}</span>
                 <span>•</span>
-                <span>প্রিলিমিনারি প্রশ্ন: {{ $questions->count() }}টি</span>
+                <span>মোট পাঠ ও টপিক: {{ $writtenContents->count() }}টি</span>
                 <span>•</span>
-                <span>লিখিত মডেল প্রশ্ন: {{ $writtenContents->count() }}টি</span>
-                <span>•</span>
-                <span>সংস্করণ: BCS Master Edition</span>
+                <span>সংস্করণ: BCS Master Edition (Textbook)</span>
             </div>
         </div>
 
-        {{-- SECTION 1: MCQ QUESTIONS --}}
-        @if($mode === 'all' || $mode === 'mcq')
-            <div class="mb-10">
-                <div class="flex items-center space-x-2 border-b-2 border-indigo-600 pb-2 mb-6">
-                    <span class="text-lg">🎯</span>
-                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-wide">
-                        পর্ব ১: প্রিলিমিনারি বহুনির্বাচনী প্রশ্ন ও ব্যাখ্যা (MCQs)
-                    </h2>
-                    <span class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded ml-auto">
-                        {{ $questions->count() }} টি প্রশ্ন
-                    </span>
-                </div>
+        {{-- Chapter Summary --}}
+        @if($chapter->summary_bn)
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-6 text-xs leading-relaxed text-slate-600 italic">
+                <strong>অধ্যায় সারসংক্ষেপ:</strong> {{ $chapter->summary_bn }}
+            </div>
+        @endif
 
-                @if($questions->isEmpty())
-                    <p class="text-center py-6 text-slate-400 text-sm font-semibold">এই অধ্যায়ে কোনো প্রিলিমিনারি MCQ সংযুক্ত নেই।</p>
-                @else
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        @foreach($questions as $idx => $q)
-                            <div class="page-break-avoid p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <div class="font-bold text-slate-900 text-sm leading-snug">
-                                            <span class="text-indigo-600 font-black mr-1">{{ $idx + 1 }}.</span>
-                                            {{ $q->question_text }}
-                                        </div>
-                                    </div>
-
-                                    {{-- Source tags --}}
-                                    @if($q->tags && $q->tags->count() > 0)
-                                        <div class="flex flex-wrap gap-1 mb-2.5">
-                                            @foreach($q->tags as $tag)
-                                                <span class="text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded">
-                                                    🏛️ {{ $tag->name }}
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @endif
-
-                                    {{-- Options --}}
-                                    <div class="space-y-1.5 text-xs">
-                                        @foreach($q->options as $opt)
-                                            <div class="flex items-start space-x-2 px-2 py-1 rounded {{ $opt->is_correct ? 'bg-emerald-100 text-emerald-950 font-bold border border-emerald-300' : 'text-slate-700' }}">
-                                                <span class="w-4 text-center font-bold text-slate-500">{{ $opt->option_label }}.</span>
-                                                <span class="flex-1">{{ $opt->option_text }}</span>
-                                                @if($opt->is_correct)
-                                                    <span class="text-emerald-700 font-black text-[11px]">✓ সঠিক</span>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                {{-- Explanation --}}
-                                @if($q->explanation)
-                                    <div class="mt-3 pt-2 border-t border-slate-200 text-xs text-slate-700 bg-white p-2 rounded-lg border border-slate-100">
-                                        <span class="font-bold text-indigo-700">💡 ব্যাখ্যা:</span>
-                                        <div class="mt-0.5 leading-relaxed text-slate-600 text-[11px]">
-                                            {{ $q->explanation }}
-                                        </div>
-                                    </div>
+        {{-- TEXT SECTIONS & ARTICLES --}}
+        <div class="space-y-6">
+            @foreach($writtenContents as $wIdx => $wc)
+                <div class="page-break-avoid p-6 rounded-2xl border border-slate-300 bg-white shadow-xs">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-black text-xs flex items-center justify-center">
+                                {{ $wIdx + 1 }}
+                            </span>
+                            <span class="text-xs font-black uppercase text-indigo-700 tracking-wider">
+                                @if($wc->content_type === 'written_question_solution')
+                                    মডেল প্রশ্নোত্তর ও সমাধান
+                                @elseif($wc->content_type === 'theory_and_rules')
+                                    থিওরি ও নিয়মাবলী
+                                @else
+                                    বিশদ পাঠ্য বিষয়
                                 @endif
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        @endif
+                            </span>
+                        </div>
 
-        {{-- SECTION 2: WRITTEN MATERIALS --}}
-        @if($mode === 'all' || $mode === 'written')
-            <div class="{{ $mode === 'all' ? 'page-break-before mt-8' : '' }} mb-8">
-                <div class="flex items-center space-x-2 border-b-2 border-purple-600 pb-2 mb-6">
-                    <span class="text-lg">✍️</span>
-                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-wide">
-                        পর্ব ২: বিসিএস লিখিত মডেল উত্তর ও থিওরি (Written Material)
+                        <div class="flex items-center space-x-2 text-xs font-bold">
+                            @if($wc->marks)
+                                <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono">
+                                    মান: {{ (int)$wc->marks }} নম্বর
+                                </span>
+                            @endif
+                            @if($wc->bcs_reference)
+                                <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">
+                                    🏛️ {{ $wc->bcs_reference }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <h2 class="text-base font-black text-slate-900 mb-3 leading-snug">
+                        {{ $wc->title_bn }}
                     </h2>
-                    <span class="text-xs bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded ml-auto">
-                        {{ $writtenContents->count() }} টি মডেল প্রশ্ন/বিষয়
-                    </span>
-                </div>
 
-                @if($writtenContents->isEmpty())
-                    <p class="text-center py-6 text-slate-400 text-sm font-semibold">এই অধ্যায়ে কোনো লিখিত মডেল উত্তর অন্তর্ভুক্ত নেই।</p>
-                @else
-                    <div class="space-y-6">
-                        @foreach($writtenContents as $wIdx => $wc)
-                            <div class="page-break-avoid p-6 rounded-2xl border border-slate-300 bg-white shadow-xs">
-                                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 mb-3">
-                                    <div class="flex items-center space-x-2">
-                                        <span class="w-6 h-6 rounded-full bg-purple-600 text-white font-black text-xs flex items-center justify-center">
-                                            {{ $wIdx + 1 }}
-                                        </span>
-                                        <span class="text-xs font-black uppercase text-purple-700 tracking-wider">
-                                            @if($wc->content_type === 'model_question')
-                                                মডেল প্রশ্ন ও স্ট্যান্ডার্ড সমাধান
-                                            @elseif($wc->content_type === 'essay_outline')
-                                                রচনামূলক কাঠামো ও তথ্য
-                                            @elseif($wc->content_type === 'rule_sheet')
-                                                নিয়মাবলী ও সূত্রতালিকা
-                                            @else
-                                                সংক্ষিপ্ত নোট
-                                            @endif
-                                        </span>
-                                    </div>
+                    @if($wc->question_bn)
+                        <div class="p-3 mb-3 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
+                            <span class="text-indigo-600 font-bold block mb-0.5">বিসিএস লিখিত প্রশ্ন:</span>
+                            {{ $wc->question_bn }}
+                        </div>
+                    @endif
 
-                                    <div class="flex items-center space-x-2 text-xs font-bold">
-                                        @if($wc->marks)
-                                            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono">
-                                                মান: {{ $wc->marks }} নম্বর
-                                            </span>
-                                        @endif
-                                        @if($wc->exam_year_reference)
-                                            <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">
-                                                🏛️ {{ $wc->exam_year_reference }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <h3 class="text-base font-black text-slate-900 mb-3 leading-snug">
-                                    {{ $wc->title_bn }}
-                                </h3>
-
-                                <div class="written-content text-slate-800 leading-relaxed text-sm bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                    {!! $wc->content_bn !!}
-                                </div>
-                            </div>
-                        @endforeach
+                    <div class="written-content text-slate-800 leading-relaxed text-sm bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        {!! $wc->content_bn !!}
                     </div>
-                @endif
-            </div>
-        @endif
+                </div>
+            @endforeach
+        </div>
 
         {{-- Footer --}}
         <div class="mt-12 pt-4 border-t border-slate-300 text-center text-xs text-slate-500 space-y-1">
